@@ -26,3 +26,10 @@ mutable struct Vehicle
     y::Float64          # centroid abcissa
     Vehicle(i, q) = new(i, q, 1, 1, 0, 0)
 end
+
+mutable struct Solution
+    N::Vector{Node}     # nodes
+    A::Matrix{Arc}      # arcs
+    V::Vector{Vehicle}  # vehicles
+    c::Float64          # cost
+end
