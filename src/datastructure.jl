@@ -1,35 +1,28 @@
-abstract type Node end
-
-mutable struct DepotNode <: Node
+mutable struct Node
     i::Int              # index
-    x::Float64          # ordinate
-    y::Float64          # abcissa
-    V::Vector{Vehicle}  # fleet
-end
-
-
-mutable struct CustomerNode <: Node
-    i::Int              # index
-    x::Float64          # ordinate
-    y::Float64          # abcissa
-    q::Float64          # demand
+    x::Int              # ordinate
+    y::Int              # abcissa
+    q::Int              # demand
     t::Int              # tail node index
     h::Int              # head node index
     v::Int              # vehicle index
+    Node(i, x, y, q) = new(i, x, y, q, i, i, 0)
 end
 
 struct Arc
     i::Int              # tail node index
     j::Int              # head node index
-    c::Float64          # cost
+    l::Float64          # length
 end
 
 mutable struct Vehicle
     i::Int              # index
-    q::Float64          # capacity
+    q::Int              # capacity
     s::Int              # start node index
     e::Int              # end node index
-    n::Int              # number of customer nodes
+    n::Int              # number of customers served
+    l::Int              # load
     x::Float64          # centroid ordinate
     y::Float64          # centroid abcissa
+    Vehicle(i, q) = new(i, q, 1, 1, 0, 0)
 end
