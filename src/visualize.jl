@@ -33,7 +33,7 @@ function visualize(s::Solution; backend=gr)
     for (k,n) ∈ pairs(s.N)
         X[k] = n.x
         Y[k] = n.y
-        C[k] = isone(n.i) ? "#b4464b" : "#d1e0ec"
+        C[k] = isone(n.i) ? "#b4464b" : "#4682b4"
         S[k] = isone(n.i) ? 6 : 5
         M[k] = isone(n.i) ? :rect : :circle
     end
