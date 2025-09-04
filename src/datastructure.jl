@@ -6,13 +6,13 @@ mutable struct Node
     t::Int              # tail node index
     h::Int              # head node index
     v::Int              # vehicle index
-    Node(i, x, y, q) = new(i, x, y, q, i, i, 0)
+    Node(i, x, y, q) = new(i, x, y, q, 0, 0, 0)
 end
 
 struct Arc
     i::Int              # tail node index
     j::Int              # head node index
-    l::Float64          # length
+    c::Float64          # cost
 end
 
 mutable struct Vehicle
@@ -24,7 +24,8 @@ mutable struct Vehicle
     l::Int              # load
     x::Float64          # centroid ordinate
     y::Float64          # centroid abcissa
-    Vehicle(i, q) = new(i, q, 1, 1, 0, 0)
+    c::Float64          # cost
+    Vehicle(i, q) = new(i, q, 1, 1, 0, 0, 0., 0., 0.)
 end
 
 mutable struct Solution

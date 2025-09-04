@@ -25,8 +25,8 @@ function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
         for j ∈ 1:n
             xⱼ = N[j].x
             yⱼ = N[j].y 
-            l  = ((xⱼ-xᵢ)^2 + (yⱼ-yᵢ)^2)^0.5
-            a  = Arc(i, j, l)
+            c  = ((xⱼ-xᵢ)^2 + (yⱼ-yᵢ)^2)^0.5
+            a  = Arc(i, j, c)
             A[i,j] = a
         end
     end
