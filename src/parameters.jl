@@ -14,11 +14,11 @@ Optimization parameters for Adaptive Large Neighborhood Search (ALNS).
 - σ₂    :   Score for a new better solution
 - σ₃    :   Score for a new worse but accepted solution
 - μ̲     :   Minimum removal fraction
-- c̲     :   Minimum customer nodes removed
+- e̲     :   Minimum nodes removed
 - μ̅     :   Maximum removal fraction
-- c̅     :   Maximum customer nodes removed
+- e̅     :   Maximum nodes removed
 - ω̅     :   Initial temperature deviation parameter
-- τ̅     :   Initial temperatureprobability parameter
+- τ̅     :   Initial temperature probability parameter
 - ω̲     :   Final temperature deviation parameter
 - τ̲     :   Final temperature probability parameter
 - θ     :   Cooling rate
@@ -36,9 +36,9 @@ Base.@kwdef struct ALNSparameters
     σ₂::Float64
     σ₃::Float64
     μ̲::Float64
-    c̲::Int
+    e̲::Int
     μ̅::Float64
-    c̅::Int
+    e̅::Int
     ω̅::Float64
     τ̅::Float64
     ω̲::Float64

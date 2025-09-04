@@ -18,24 +18,24 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
     n, m = χ.n, χ.m
     Ψᵣ, Ψᵢ, Ψₗ = χ.Ψᵣ, χ.Ψᵢ, χ.Ψₗ
     σ₁, σ₂, σ₃ = χ.σ₁, χ.σ₂, χ.σ₃
-    μ̲, c̲ = χ.μ̲, χ.c̲
-    μ̅, c̅ = χ.μ̅, χ.c̅
+    μ̲, e̲ = χ.μ̲, χ.e̲
+    μ̅, e̅ = χ.μ̅, χ.e̅
     ω̅, τ̅ = χ.ω̅, χ.τ̅
     ω̲, τ̲ = χ.ω̲, χ.τ̲
     θ, ρ = χ.θ, χ.ρ   
     R = eachindex(Ψᵣ)
     I = eachindex(Ψᵢ)
     L = eachindex(Ψₗ)
+    X = OffsetVector{UInt}(undef, 0:j*(n+1))
     Z = OffsetVector{Float64}(undef, 0:j*(n+1))
-    H = OffsetVector{UInt}(undef, 0:j*(n+1))
     # Step 1: Initialize
     s = deepcopy(sₒ)
-    s⃰ = s
-    z = f(sₒ)
-    z⃰ = z
-    h = hash(s)
+    x = h(s)
+    z = f(s)
+    X[0] = x
     Z[0] = z
-    H[0] = h
+    s⃰ = s
+    z⃰ = z
     t = ω̅ * z⃰/log(1/τ̅)
     Cᵣ, Pᵣ, Πᵣ, Wᵣ = zeros(Int, R), zeros(R), zeros(R), ones(R)
     Cᵢ, Pᵢ, Πᵢ, Wᵢ = zeros(Int, I), zeros(I), zeros(I), ones(I)
@@ -51,19 +51,19 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
         # Step 2.3: Loop over iterations within the segment
         for v ∈ 1:n
             # Step 2.3.1: Randomly select a removal and an insertion operator based on operator selection probabilities, and consequently update count for the selected operators.
-            r = sample(rng, 1:length(Ψᵣ), Weights(Pᵣ))
-            i = sample(rng, 1:length(Ψᵢ), Weights(Pᵢ))
+            r = sample(rng, eachindex(Ψᵣ), Weights(Pᵣ))
+            i = sample(rng, eachindex(Ψᵢ), Weights(Pᵢ))
             Cᵣ[r] += 1
             Cᵢ[i] += 1
             # Step 2.3.2: Using the selected removal and insertion operators destroy and repair the current solution to develop a new solution.
             η = rand(rng)
-            c = length(s.C)
-            q = Int(floor(((1 - η) * min(c̲, μ̲ * c) + η * min(c̅, μ̅ * c))))
+            e = lastindex(s.N) - 1
+            q = Int(floor(((1 - η) * min(e̲, μ̲ * e) + η * min(e̅, μ̅ * e))))
             s′= deepcopy(s)
             remove!(rng, q, s′, Ψᵣ[r])
             insert!(rng, s′, Ψᵢ[i])
+            x′ = h(s′)
             z′ = f(s′)
-            h′ = hash(s′)
             # Step 2.3.3: If this new solution is better than the best solution, then set the best solution and the current solution to the new solution, and accordingly update scores of the selected removal and insertion operators by σ₁.
             if z′ < z⃰
                 s = s′
@@ -76,7 +76,7 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
             elseif z′ < z
                 s = s′
                 z = z′
-                if h′ ∉ H
+                if h′ ∉ X
                     Πᵣ[r] += σ₂
                     Πᵢ[i] += σ₂
                 end
@@ -86,15 +86,15 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
                 if η < exp(-(z′ - z)/t)
                     s = s′
                     z = z′
-                    if h′ ∉ H
+                    if h′ ∉ X
                         Πᵣ[r] += σ₃
                         Πᵢ[i] += σ₃
                     end
                 end
             end
-            h = h′
+            x = x′
+            X[(u - 1) * (n + 1) + v] = x
             Z[(u - 1) * (n + 1) + v] = z
-            H[(u - 1) * (n + 1) + v] = h
             t = max(t * θ, ω̲ * z⃰/log(1/τ̲))
             if !mute next!(p) end
         end
@@ -106,8 +106,8 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
         # Step 2.6: Perform local search.
         s′ = deepcopy(s)
         for l ∈ L localsearch!(rng, m, s′, Ψₗ[l]) end
+        x′ = h(s′)
         z′ = f(s′)
-        h′ = hash(s′)
         if z′ < z⃰
             s = s′
             s⃰ = s′
@@ -117,9 +117,9 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
             s = s′
             z = z′
         end
-        h = h′
+        x = x′
+        X[u * (n + 1)] = x
         Z[u * (n + 1)] = z
-        H[u * (n + 1)] = h
     end
     # Step 3: Display the convergence plot and return the best solution
     if !mute display(pltcnv(Z)) end
