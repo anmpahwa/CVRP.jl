@@ -59,6 +59,7 @@ function worstcustomer!(rng::AbstractRNG, k::Int, s::Solution)
     end
     return s
 end
+# TODO: modify worstcustomer from local to global worst
 
 function randomvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     # set vehicle weights: uniform
