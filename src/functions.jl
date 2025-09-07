@@ -1,3 +1,11 @@
+isdepot(n) = isone(n.i)
+iscustomer(n) = !isdepot(n)
+
+isopen(n) = iszero(n.v)
+isclose(n) = !isopen(n)
+
+isopt(v) = !iszero(v.n)
+
 function vectorize(s::Solution)
     Z = Int[]
     for v ∈ s.V
