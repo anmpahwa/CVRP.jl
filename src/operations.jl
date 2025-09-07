@@ -1,4 +1,4 @@
-function removenode!(s::Solution, n::Node, t::Node, h::Node, v::Vehicle)
+function remove!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     # fetch features
     x = v.x * v.n
     y = v.y * v.n
@@ -24,7 +24,7 @@ function removenode!(s::Solution, n::Node, t::Node, h::Node, v::Vehicle)
     return s
 end
 
-function insertnode!(s::Solution, n::Node, t::Node, h::Node, v::Vehicle)
+function insert!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     # fetch features
     x = v.x * v.n
     y = v.y * v.n

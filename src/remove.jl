@@ -6,7 +6,7 @@ function randomcustomer!(rng::AbstractRNG, k::Int, s::Solution)
         t = s.N[n.t]
         h = s.N[n.h]
         v = s.V[n.v]
-        removecustomer!(s, n, t, h, v)
+        remove!(n, t, h, v, s)
     end
     return s
 end
@@ -20,7 +20,7 @@ function relatedcustomer!(rng::AbstractRNG, k::Int, s::Solution)
         t = s.N[n.t]
         h = s.N[n.h]
         v = s.V[n.v]
-        removecustomer!(s, n, t, h, v)
+        remove!(n, t, h, v, s)
     end
     return s
 end
@@ -34,10 +34,10 @@ function worstcustomer!(rng::AbstractRNG, k::Int, s::Solution)
         t = s.N[n.t]
         h = s.N[n.h]
         v = s.V[n.v]
-        removecustomer!(s, n, t, h, v)
+        remove!(n, t, h, v, s)
         z′ = f(s)
         W[i] = z - z′
-        insertcustomer!(s, n, p, q, v)
+        insert!(n, p, q, v, s)
     end
     I = sample(rng, k, eachindex(s.N), Weights(W))
     for i ∈ I
@@ -45,7 +45,7 @@ function worstcustomer!(rng::AbstractRNG, k::Int, s::Solution)
         t = s.N[n.t]
         h = s.N[n.h]
         v = s.V[n.v]
-        removecustomer!(s, n, t, h, v)
+        remove!(n, t, h, v, s)
     end
     return s
 end
@@ -62,7 +62,7 @@ function randomvehicle!(rng::AbstractRNG, k::Int, s::Solution)
             t = s.N[n.t]
             h = s.N[n.h]
             v = s.V[n.v]
-            removecustomer!(s, n, t, h, v)
+            remove!(n, t, h, v, s)
             m += 1
         end
         W[j] = 0.
@@ -85,7 +85,7 @@ function relatedvehicle!(rng::AbstractRNG, k::Int, s::Solution)
             t = s.N[n.t]
             h = s.N[n.h]
             v = s.V[n.v]
-            removecustomer!(s, n, t, h, v)
+            remove!(n, t, h, v, s)
             m += 1
         end
         W[j] = 0.
@@ -106,7 +106,7 @@ function worstvehicle!(rng::AbstractRNG, k::Int, s::Solution)
             t = s.N[n.t]
             h = s.N[n.h]
             v = s.V[n.v]
-            removecustomer!(s, n, t, h, v)
+            remove!(n, t, h, v, s)
             m += 1
         end
         W[j] = 0.
