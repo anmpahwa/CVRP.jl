@@ -1,13 +1,12 @@
 function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
-    
+    # read instance file
     df = CSV.read("$dir/$instance.vrp", DataFrame, silencewarnings=true)
-    
+    # fetch key indices
     k₁ = findfirst(contains("DIMENSION"), df[:,1])
     k₂ = findfirst(contains("CAPACITY"), df[:,1])
     k₃ = findfirst(contains("NODE_COORD_SECTION"), df[:,1])
     k₄ = findfirst(contains("DEMAND_SECTION"), df[:,1])
-
-    # Nodes
+    # fetch nodes
     n = parse(Int, df[k₁,2])
     N = Vector{Node}(undef, n)
     for i ∈ 1:n
@@ -16,8 +15,7 @@ function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
         q = parse(Int, split(df[k₄+i,1])[2])
         N[i] = Node(i, x, y, q)
     end
-    
-    # Arcs
+    # create arcs
     A = Matrix{Arc}(undef, n, n)
     for i ∈ 1:n
         xᵢ = N[i].x
@@ -29,17 +27,15 @@ function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
             a  = Arc(i, j, c)
             A[i,j] = a
         end
-    end
-            
-    # Vehicles
+    end   
+    # fetch vehicles
     d = 0
     for i ∈ 1:n d += N[i].q end
     q = parse(Int, df[k₂,2])
     m = d ÷ q + 1
     V = Vector{Vehicle}(undef, m)
     for i ∈ 1:m V[i] = Vehicle(i, q) end
-
-    # Graph
+    # create graph
     G = (N, A, V)
     return G
 end
