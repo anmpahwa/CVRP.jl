@@ -11,9 +11,9 @@ function visualize(instance::String; backend=gr)
     for (k,n) ∈ pairs(N)
         X[k] = n.x
         Y[k] = n.y
-        C[k] = isone(n.i) ? "#b4464b" : "#d1e0ec"
-        S[k] = isone(n.i) ? 6 : 5
-        M[k] = isone(n.i) ? :rect : :circle
+        C[k] = isdepot(n) ? "#b4464b" : "#d1e0ec"
+        S[k] = isdepot(n) ? 6 : 5
+        M[k] = isdepot(n) ? :rect : :circle
     end
     scatter!(X, Y, color=C, markersize=S, markershape=M, markerstrokewidth=0)
     return fig
@@ -22,8 +22,7 @@ end
 function visualize(s::Solution; backend=gr)
     backend()
     fig = plot(legend=:none)
-
-    # Nodes
+    # nodes
     K = lastindex(s.N)
     X = zeros(Float64, K)       # abcissa
     Y = zeros(Float64, K)       # ordinate
@@ -33,18 +32,17 @@ function visualize(s::Solution; backend=gr)
     for (k,n) ∈ pairs(s.N)
         X[k] = n.x
         Y[k] = n.y
-        C[k] = isone(n.i) ? "#b4464b" : "#4682b4"
-        S[k] = isone(n.i) ? 6 : 5
-        M[k] = isone(n.i) ? :rect : :circle
+        C[k] = isdepot(n) ? "#b4464b" : "#4682b4"
+        S[k] = isdepot(n) ? 6 : 5
+        M[k] = isdepot(n) ? :rect : :circle
     end
     scatter!(X, Y, color=C, markersize=S, markershape=M, markerstrokewidth=0)
-
-    # Arcs
+    # arcs
     Z = vectorize(s)
     K = lastindex(Z)
     X = [Z[k].x for k ∈ 1:K]    # abcissa    
     Y = [Z[k].y for k ∈ 1:K]    # ordinate
     plot!(X, Y, color="#23415a")
-
+    # figure
     return fig
 end
