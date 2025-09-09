@@ -8,7 +8,7 @@ function visualize(instance::String; backend=gr)
     C = fill("color", K)        # color
     S = zeros(Int, K)           # size
     M = fill(:shape, K)         # marker
-    for (k,n) ∈ pairs(N)
+    for (k,n) ∈ enumerate(N)
         X[k] = n.x
         Y[k] = n.y
         C[k] = isdepot(n) ? "#b4464b" : "#d1e0ec"
@@ -29,7 +29,7 @@ function visualize(s::Solution; backend=gr)
     C = fill("color", K)        # color
     S = zeros(Int, K)           # size
     M = fill(:shape, K)         # marker
-    for (k,n) ∈ pairs(s.N)
+    for (k,n) ∈ enumerate(s.N)
         X[k] = n.x
         Y[k] = n.y
         C[k] = isdepot(n) ? "#b4464b" : "#4682b4"
