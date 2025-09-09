@@ -14,8 +14,8 @@ function removenode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     t.h = isdepot(t) ? 0 : h.i
     h.t = isdepot(h) ? 0 : t.i
     # update associated vehicle
-    v.s = isdepot(t) ? v.s : h.i
-    v.e = isdepot(h) ? v.e : t.i
+    v.s = isdepot(t) ? h.i : v.s
+    v.e = isdepot(h) ? t.i : v.s
     v.n -= -1
     v.l -= n.q
     v.x = (x - n.x) / v.n
