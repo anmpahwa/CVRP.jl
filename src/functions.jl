@@ -1,10 +1,10 @@
-isdepot(n) = isone(n.i)
-iscustomer(n) = !isdepot(n)
+isdepot(n::Node) = isone(n.i)
+iscustomer(n::Node) = !isdepot(n)
 
-isopen(n) = iszero(n.v)
-isclose(n) = !isopen(n)
+isopen(n::Node) = iszero(n.v)
+isclose(n::Node) = !isopen(n)
 
-isopt(v) = !iszero(v.n)
+isopt(v::Vehicle) = !iszero(v.n)
 
 function vectorize(s::Solution)
     Z = Int[]
