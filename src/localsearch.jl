@@ -3,6 +3,7 @@ function intramove!(rng::AbstractRNG, k::Int, s::Solution)
     N = s.N
     V = s.V
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
+    # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
         z = f(s)
@@ -48,6 +49,7 @@ function intermove!(rng::AbstractRNG, k::Int, s::Solution)
     V = s.V
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
     R = [[isequal(u, v) ? 0. : relatedness(u, v) for u ∈ V] for v ∈ V]
+    # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
         z = f(s)
@@ -93,6 +95,7 @@ function intraswap!(rng::AbstractRNG, k::Int, s::Solution)
     N = s.N
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
     R = [[(isequal(n, m) || !isequal(n.v, m.v)) ? 0. : relatedness(n, m) for m ∈ N] for n ∈ N]
+    # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
         z = f(s)
@@ -155,6 +158,7 @@ function interswap!(rng::AbstractRNG, k::Int, s::Solution)
     N = s.N
     W = [isone(i) ? 0 : 1 for i ∈ eachindex(s.N)]
     R = [[(isequal(n, m) || isequal(n.v, m.v)) ? 0 : relatedness(n, m) for m ∈ N] for n ∈ N]
+    # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
         z = f(s)
@@ -218,6 +222,7 @@ function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
     V = s.V
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
     R = [[(isequal(n, m) || !isequal(n.v, m.v)) ? 0. : relatedness(n, m) for m ∈ N] for n ∈ N]
+    # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
         z = f(s)
@@ -269,6 +274,7 @@ function interopt!(rng::AbstractRNG, k::Int, s::Solution)
     V = s.V
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
     R = [[(isequal(n, m) || isequal(n.v, m.v)) ? 0. : relatedness(n, m) for m ∈ N] for n ∈ N]
+    # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
         z = f(s)
