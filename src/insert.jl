@@ -29,7 +29,7 @@ function best!(rng::AbstractRNG, s::Solution; mode::Symbol)
                 # remove the node
                 removenode!(n, t, h, v, s)
                 t = h
-                h = s.N[t.h]
+                h = N[t.h]
             end
         end
         # insert the node at its best position
@@ -77,7 +77,7 @@ function greedy!(rng::AbstractRNG, s::Solution; mode::Symbol)
                     # remove the node
                     removenode!(n, t, h, v, s)
                     t = h
-                    h = s.N[t.h]
+                    h = N[t.h]
                 end
             end
         end
@@ -137,7 +137,7 @@ function regretk!(rng::AbstractRNG, s::Solution; k::Int)
                     # remove the node
                     removenode!(n, t, h, v, s)
                     t = h
-                    h = s.N[t.h]
+                    h = N[t.h]
                 end
             end
             # compute the regret cost
