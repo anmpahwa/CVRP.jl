@@ -4,7 +4,9 @@ using CSV
 using Plots
 using Random
 using Revise
+using StatsBase
 using DataFrames
+using Distributions
 
 include("datastructure.jl")
 include("functions.jl")
