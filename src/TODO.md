@@ -7,8 +7,8 @@
 ## functions.jl
 - add isfeasbile
 
-## insert.jl
-- prevent re-calcaulations for same operations
+## remove.jl
+- modify worstcustomer from local to global worst
 
-## visualize.jl
-- visualize partial solution
+## insert.jl
+- prevent re-calcaulations for same operationsW
