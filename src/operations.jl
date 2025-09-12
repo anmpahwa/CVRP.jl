@@ -13,8 +13,8 @@ function removenode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     n.h = 0
     n.v = 0
     # update predecessor and successor nodes
-    t.h = isdepot(t) ? 0 : h.i
-    h.t = isdepot(h) ? 0 : t.i
+    t.h = isdepot(t) ? t.h : h.i
+    h.t = isdepot(h) ? h.t : t.i
     # update associated vehicle
     v.s = isdepot(t) ? h.i : v.s
     v.e = isdepot(h) ? t.i : v.s
@@ -46,8 +46,8 @@ function insertnode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     n.h = h.i
     n.v = v.i
     # update predecessor and successor nodes
-    t.h = isdepot(t) ? 0 : n.i
-    h.t = isdepot(h) ? 0 : n.i
+    t.h = isdepot(t) ? t.h : n.i
+    h.t = isdepot(h) ? h.t : n.i
     # update associated vehicle
     v.s = isdepot(t) ? n.i : v.s
     v.e = isdepot(h) ? n.i : v.e
