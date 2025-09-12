@@ -17,7 +17,7 @@ include("parameters.jl")
 include("ALNS.jl")
 include("visualize.jl")
 
-export  build, 
+export  build, initialize,
         vectorize, f, 
         ALNSparameters, ALNS, 
         visualize
