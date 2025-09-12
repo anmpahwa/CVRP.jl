@@ -12,7 +12,7 @@ function vectorize(s::Solution)
         push!(Z, 1)
         i = v.s
         for _ ∈ 1:v.n
-            push!(Z, s.N[i])
+            push!(Z, i)
             n = s.N[i]
             i = n.h
         end
