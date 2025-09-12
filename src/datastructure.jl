@@ -6,7 +6,7 @@ mutable struct Node
     t::Int              # tail node index
     h::Int              # head node index
     v::Int              # vehicle index
-    Node(i, x, y, q) = new(i, x, y, q, 0, 0, 0)
+    Node(i, x, y, q) = new(i, x, y, q, i, i, 0)
 end
 
 struct Arc
