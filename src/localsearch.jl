@@ -22,7 +22,7 @@ function intramove!(rng::AbstractRNG, k::Int, s::Solution)
         h = N[v.s]
         for _ ∈ 0:v.n
             # insert the node
-            insertnode!(n, t, g, v, s)
+            insertnode!(n, t, h, v, s)
             # evaluate the insertion cost
             z′ = f(s)
             c′ = z′ - z
@@ -68,7 +68,7 @@ function intermove!(rng::AbstractRNG, k::Int, s::Solution)
         h = N[v.s]
         for _ ∈ 0:v.n
             # insert the node
-            insertnode!(n, t, g, v, s)
+            insertnode!(n, t, h, v, s)
             # evaluate the insertion cost
             z′ = f(s)
             c′ = z′ - z
@@ -93,6 +93,7 @@ function intraswap!(rng::AbstractRNG, k::Int, s::Solution)
     # tₘ → m → hₘ and tₙ → n → hₙ
     # initialize
     N = s.N
+    V = s.V
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
     R = [[(isequal(n, m) || !isequal(n.v, m.v)) ? 0. : relatedness(n, m) for m ∈ N] for n ∈ N]
     # iterate
@@ -104,24 +105,28 @@ function intraswap!(rng::AbstractRNG, k::Int, s::Solution)
         # sample another node from the same route, weighted by relatedness
         m = sample(rng, N, Weights(R[n.i]))
         # swap the two nodes
+        if isdepot(m) continue end
+        if isequal(n,m) continue end
         tₙ= N[n.t]
         hₙ= N[n.h]
+        vₙ= V[n.v]
         tₘ= N[m.t]
         hₘ= N[m.h]
+        vₘ= V[m.v]
         # case 1: tₘ → m (tₙ) → n (hₘ) → hₙ
         if isequal(n, hₘ) # || isequal(m, tₙ)
-            removenode!(n, tₙ, hₙ, v, s)
-            insertnode!(n, tₘ, tₙ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            insertnode!(n, tₘ, tₙ, vₘ, s)
         # case 2: tₙ → n (tₘ) → m (hₙ) → hₘ
         elseif isequal(n, tₘ) # || isequal(m, hₙ)
-            removenode!(n, tₙ, hₙ, v, s)
-            insertnode!(n, hₙ, hₘ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            insertnode!(n, hₙ, hₘ, vₘ, s)
         # case 3: all other cases
         else
-            removenode!(n, tₙ, hₙ, v, s)
-            removenode!(m, tₘ, hₘ, v, s)
-            insertnode!(n, tₘ, hₘ, v, s)
-            insertnode!(m, tₙ, hₙ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            removenode!(m, tₘ, hₘ, vₘ, s)
+            insertnode!(n, tₘ, hₘ, vₘ, s)
+            insertnode!(m, tₙ, hₙ, vₙ, s)
         end
         # evaluate the change in objective function value
         z′ = f(s)
@@ -130,22 +135,24 @@ function intraswap!(rng::AbstractRNG, k::Int, s::Solution)
         # reswap the two nodes
         tₙ= N[n.t]
         hₙ= N[n.h]
+        vₙ= V[n.v]
         tₘ= N[m.t]
         hₘ= N[m.h]
+        vₘ= V[m.v]
         # case 1: tₘ → m (tₙ) → n (hₘ) → hₙ
         if isequal(n, hₘ) # || isequal(m, tₙ)
-            removenode!(n, tₙ, hₙ, v, s)
-            insertnode!(n, tₘ, tₙ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            insertnode!(n, tₘ, tₙ, vₘ, s)
         # case 2: tₙ → n (tₘ) → m (hₙ) → hₘ
         elseif isequal(n, tₘ) # || isequal(m, hₙ)
-            removenode!(n, tₙ, hₙ, v, s)
-            insertnode!(n, hₙ, hₘ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            insertnode!(n, hₙ, hₘ, vₘ, s)
         # case 3: all other cases
         else
-            removenode!(n, tₙ, hₙ, v, s)
-            removenode!(m, tₘ, hₘ, v, s)
-            insertnode!(n, tₘ, hₘ, v, s)
-            insertnode!(m, tₙ, hₙ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            removenode!(m, tₘ, hₘ, vₘ, s)
+            insertnode!(n, tₘ, hₘ, vₘ, s)
+            insertnode!(m, tₙ, hₙ, vₙ, s)
         end
     end
     # return solution
@@ -156,6 +163,7 @@ function interswap!(rng::AbstractRNG, k::Int, s::Solution)
     # tₘ → m → hₘ and tₙ → n → hₙ
     # initialize
     N = s.N
+    V = s.V
     W = [isone(i) ? 0 : 1 for i ∈ eachindex(s.N)]
     R = [[(isequal(n, m) || isequal(n.v, m.v)) ? 0 : relatedness(n, m) for m ∈ N] for n ∈ N]
     # iterate
@@ -167,25 +175,28 @@ function interswap!(rng::AbstractRNG, k::Int, s::Solution)
         # sample another node from the same route, weighted by relatedness
         m = sample(rng, N, Weights(R[n.i]))
         # swap the two nodes
+        if isdepot(m) continue end
         if isequal(n,m) continue end
         tₙ= N[n.t]
         hₙ= N[n.h]
+        vₙ= V[n.v]
         tₘ= N[m.t]
         hₘ= N[m.h]
+        vₘ= V[m.v]
         # case 1: tₘ → m (tₙ) → n (hₘ) → hₙ
         if isequal(n, hₘ) # || isequal(m, tₙ)
-            removenode!(n, tₙ, hₙ, v, s)
-            insertnode!(n, tₘ, tₙ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            insertnode!(n, tₘ, tₙ, vₘ, s)
         # case 2: tₙ → n (tₘ) → m (hₙ) → hₘ
         elseif isequal(n, tₘ) # || isequal(m, hₙ)
-            removenode!(n, tₙ, hₙ, v, s)
-            insertnode!(n, hₙ, hₘ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            insertnode!(n, hₙ, hₘ, vₘ, s)
         # case 3: all other cases
         else
-            removenode!(n, tₙ, hₙ, v, s)
-            removenode!(m, tₘ, hₘ, v, s)
-            insertnode!(n, tₘ, hₘ, v, s)
-            insertnode!(m, tₙ, hₙ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            removenode!(m, tₘ, hₘ, vₘ, s)
+            insertnode!(n, tₘ, hₘ, vₘ, s)
+            insertnode!(m, tₙ, hₙ, vₙ, s)
         end
         # evaluate the change in objective function value
         z′ = f(s)
@@ -194,22 +205,24 @@ function interswap!(rng::AbstractRNG, k::Int, s::Solution)
         # reswap the two nodes
         tₙ= N[n.t]
         hₙ= N[n.h]
+        vₙ= V[n.v]
         tₘ= N[m.t]
         hₘ= N[m.h]
+        vₘ= V[m.v]
         # case 1: tₘ → m (tₙ) → n (hₘ) → hₙ
         if isequal(n, hₘ) # || isequal(m, tₙ)
-            removenode!(n, tₙ, hₙ, v, s)
-            insertnode!(n, tₘ, tₙ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            insertnode!(n, tₘ, tₙ, vₘ, s)
         # case 2: tₙ → n (tₘ) → m (hₙ) → hₘ
         elseif isequal(n, tₘ) # || isequal(m, hₙ)
-            removenode!(n, tₙ, hₙ, v, s)
-            insertnode!(n, hₙ, hₘ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            insertnode!(n, hₙ, hₘ, vₘ, s)
         # case 3: all other cases
         else
-            removenode!(n, tₙ, hₙ, v, s)
-            removenode!(m, tₘ, hₘ, v, s)
-            insertnode!(n, tₘ, hₘ, v, s)
-            insertnode!(m, tₙ, hₙ, v, s)
+            removenode!(n, tₙ, hₙ, vₙ, s)
+            removenode!(m, tₘ, hₘ, vₘ, s)
+            insertnode!(n, tₘ, hₘ, vₘ, s)
+            insertnode!(m, tₙ, hₙ, vₙ, s)
         end
     end
     # return solution
