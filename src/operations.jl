@@ -6,6 +6,8 @@ function removenode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     aₙₕ = s.A[n.i, h.i]
     aₜₕ = s.A[t.i, h.i]
     δ = (aₜₙ.c + aₙₕ.c) - aₜₕ.c
+    # remove penalty
+    s.p -= (v.l > v.q) ? (v.l > v.q) : 0.
     # update node
     n.t = 0
     n.h = 0
@@ -21,8 +23,11 @@ function removenode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     v.x = iszero(v.n) ? 0. : (x - n.x) / v.n
     v.y = iszero(v.n) ? 0. : (y - n.y) / v.n
     v.c -= δ
-    # update solution
+    # update solution cost
     s.c -= δ
+    # add penalty
+    s.p += (v.l > v.q) ? (v.l > v.q) : 0.
+    # return solution
     return s
 end
 
@@ -34,6 +39,8 @@ function insertnode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     aₙₕ = s.A[n.i, h.i]
     aₜₕ = s.A[t.i, h.i]
     δ = (aₜₙ.c + aₙₕ.c) - aₜₕ.c
+    # remove penalty
+    s.p -= (v.l > v.q) ? (v.l > v.q) : 0.
     # update node
     n.t = t.i
     n.h = h.i
@@ -49,7 +56,10 @@ function insertnode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     v.x = (x + n.x) / v.n
     v.y = (y + n.y) / v.n
     v.c += δ
-    # update solution
+    # update solution cost
     s.c += δ
+    # add penalty
+    s.p += (v.l > v.q) ? (v.l > v.q) : 0.
+    # return solution
     return s
 end
