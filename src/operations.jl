@@ -5,7 +5,7 @@ function removenode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     aₜₙ = s.A[t.i, n.i]
     aₙₕ = s.A[n.i, h.i]
     aₜₕ = s.A[t.i, h.i]
-    δ = (aₜₙ.l + aₙₕ.l) - aₜₕ.l
+    δ = (aₜₙ.c + aₙₕ.c) - aₜₕ.c
     # update node
     n.t = 0
     n.h = 0
@@ -33,7 +33,7 @@ function insertnode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     aₜₙ = s.A[t.i, n.i]
     aₙₕ = s.A[n.i, h.i]
     aₜₕ = s.A[t.i, h.i]
-    δ = (aₜₙ.l + aₙₕ.l) - aₜₕ.l
+    δ = (aₜₙ.c + aₙₕ.c) - aₜₕ.c
     # update node
     n.t = t.i
     n.h = h.i
