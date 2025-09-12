@@ -33,7 +33,7 @@ function visualize(s::Solution; backend=gr)
     for (k,n) ∈ enumerate(N)
         X[k] = n.x
         Y[k] = n.y
-        C[k] = isdepot(n) ? "#b4464b" : "#4682b4"
+        C[k] = isdepot(n) ? "#b4464b" : isopen(n) ? "#d1e0ec" : "#4682b4"
         S[k] = isdepot(n) ? 6 : 5
         M[k] = isdepot(n) ? :rect : :circle
     end
