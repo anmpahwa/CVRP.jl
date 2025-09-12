@@ -47,5 +47,3 @@ function visualize(s::Solution; backend=gr)
     # figure
     return fig
 end
-
-# TODO: Visualizing partial solution
