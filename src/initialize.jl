@@ -107,10 +107,10 @@ function initialize(instance::String, dir=joinpath(dirname(@__DIR__), "instances
             insertnode!(n, t, d, vᵢ, s)
         end
         # update vectors
-        C[i, :] .= -Inf
-        C[:, i] .= -Inf
-        C[j, :] .= -Inf
-        C[:, j] .= -Inf
+        C[i,:] .= -Inf
+        C[:,i] .= -Inf
+        C[j,:] .= -Inf
+        C[:,j] .= -Inf
         ϕ .= 0
         ϕ[i] = 1
         ϕ[j] = 1
