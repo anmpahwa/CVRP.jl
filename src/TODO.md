@@ -10,5 +10,5 @@
 ## remove.jl
 - modify worstcustomer from local to global worst
 
-## insert.jl
-- prevent re-calcaulations for same operationsW
+## localsearch.jl
+- intra and inter opt require fix
