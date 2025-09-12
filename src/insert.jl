@@ -11,8 +11,8 @@ function best!(rng::AbstractRNG, s::Solution; mode::Symbol)
     P = fill((0,0,0), I)                            # P[i]: best insertion position of node L[i]
     # loop: until all nodes are inserted
     for _ ∈ I
-        # sample a node and iterate through all possible insertion positions in each route
         z = f(s)
+        # sample a node and iterate through all possible insertion positions in each route
         i = sample(rng, I, Weights(W))
         n = L[i]
         for (j,v) ∈ enumerate(V)
