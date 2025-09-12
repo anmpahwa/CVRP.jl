@@ -123,7 +123,7 @@ function initialize(instance::String, dir=joinpath(dirname(@__DIR__), "instances
         v = V[k]
         v.i = k
         n = N[v.s]
-        for _ ∈ v.n
+        for _ ∈ 1:v.n
             n.v = k
             n = N[n.h]
         end
