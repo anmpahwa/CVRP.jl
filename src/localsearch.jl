@@ -266,6 +266,8 @@ function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
             hₘ= N[m.h]
         end
     end
+    # return solution
+    return s
 end
 
 function interopt!(rng::AbstractRNG, k::Int, s::Solution)
@@ -318,4 +320,6 @@ function interopt!(rng::AbstractRNG, k::Int, s::Solution)
             hₘ= N[m.h]
         end
     end
+    # return solution
+    return s
 end
