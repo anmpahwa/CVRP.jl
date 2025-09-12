@@ -33,4 +33,6 @@ mutable struct Solution
     A::Matrix{Arc}      # arcs
     V::Vector{Vehicle}  # vehicles
     c::Float64          # cost
+    p::Float64          # penalty
+    Solution(N, A, V) = new(N, A, V, 0., 0.)
 end
