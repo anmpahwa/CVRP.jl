@@ -20,7 +20,7 @@ function best!(rng::AbstractRNG, s::Solution; mode::Symbol)
             h = N[v.s]
             for _ ∈ 0:v.n
                 # insert the node
-                insertnode!(n, t, g, v, s)
+                insertnode!(n, t, h, v, s)
                 # evaluate the insertion cost
                 z′ = f(s) * (1 + φ * rand(rng, Uniform(-0.2, 0.2)))
                 c  = z′ - z
@@ -51,7 +51,7 @@ function greedy!(rng::AbstractRNG, s::Solution; mode::Symbol)
     # initialize
     φ = isequal(mode, :ptb)
     N = s.N
-    V = s.v 
+    V = s.V 
     L = [n for n ∈ N if iscustomer(n) && isopen(n)] # set of open nodes
     I = eachindex(L)
     J = eachindex(V)
@@ -68,7 +68,7 @@ function greedy!(rng::AbstractRNG, s::Solution; mode::Symbol)
                 h = N[v.s]
                 for _ ∈ 0:v.n
                     # insert the node
-                    insertnode!(n, t, g, v, s)
+                    insertnode!(n, t, h, v, s)
                     # evaluate the insertion cost
                     z′ = f(s) * (1 + φ * rand(rng, Uniform(-0.2, 0.2)))
                     c  = z′ - z
@@ -102,13 +102,13 @@ function regretk!(rng::AbstractRNG, s::Solution; k::Int)
     # initialize
     φ = isequal(mode, :ptb)
     N = s.N
-    V = s.v 
+    V = s.V 
     L = [n for n ∈ N if iscustomer(n) && isopen(n)] # set of open nodes
     I = eachindex(L)
     J = eachindex(V)
     W = ones(Int, I)                                # W[i]      : selection weight for node L[i]
     C = fill(Inf, I)                                # C[i]      : best insertion cost of node L[i] 
-    Cₖ= fill(Inf, (I,1:k))                          # Cₖ[i,k]   : k-th least insertion cost of node L[i]
+    Cₖ= fill(Inf, (I,k))                            # Cₖ[i,k]   : k-th least insertion cost of node L[i]
     R = fill(Inf, I)                                # R[i]      : regret cost of node L[i]
     P = fill((0,0,0), I)                            # P[i]      : best insertion position of node L[i]
     # loop: until all nodes are inserted
@@ -121,7 +121,7 @@ function regretk!(rng::AbstractRNG, s::Solution; k::Int)
                 h = N[v.s]
                 for _ ∈ 0:v.n
                     # insert the node
-                    insertnode!(n, t, g, v, s)
+                    insertnode!(n, t, h, v, s)
                     # evaluate the insertion cost
                     z′ = f(s) * (1 + φ * rand(rng, Uniform(-0.2, 0.2)))
                     c  = z′ - z
@@ -130,7 +130,7 @@ function regretk!(rng::AbstractRNG, s::Solution; k::Int)
                     # revise k least insertion cost
                     for (k,cₖ) ∈ enumerate(Cₖ[i])
                         if c < cₖ
-                            cₖ[i,k] = c
+                            Cₖ[i,k] = c
                             c = cₖ
                         end
                     end
