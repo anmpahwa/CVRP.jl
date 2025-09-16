@@ -33,5 +33,5 @@ function relatedness(u::Vehicle, v::Vehicle)
     return r
 end
 
-f(s::Solution) = s.c + + s.p * 10 ^ ceil(log10(s.c))
+f(s::Solution) = s.c + s.p * 10 ^ ceil(log10(s.c))
 h(s::Solution) = hash(vectorize(s))
