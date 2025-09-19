@@ -31,7 +31,6 @@ struct Graph
     N::Vector{Node}     # nodes
     A::Matrix{Arc}      # arcs
     V::Vector{Vehicle}  # vehicles
-    Graph(N, A, V) = new(N, A, V)
 end
 
 mutable struct Solution
