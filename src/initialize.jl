@@ -23,7 +23,7 @@ function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
         for j ∈ 1:n
             xⱼ = N[j].x
             yⱼ = N[j].y 
-            c  = ((xⱼ-xᵢ)^2 + (yⱼ-yᵢ)^2)^0.5
+            c  = hypot(xⱼ - xᵢ, yⱼ - yᵢ)
             a  = Arc(i, j, c)
             A[i,j] = a
         end
