@@ -48,7 +48,7 @@ function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances
     if method == :static
         # initialize
         K = eachindex(N)
-        C = fill(-Inf, (K,K))       # C[i,j]: Savings from merging node N[i] and N[j]   
+        C = zeros(Float64, (K,K))       # C[i,j]: Savings from merging node N[i] and N[j]   
         for k ∈ K
             n = N[k]
             if isdepot(n) continue end
@@ -84,7 +84,7 @@ function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances
         P = sortperm(vec(C), rev=true)
         T = Tuple.(CartesianIndices(C)[P])
         for (i,j) ∈ T
-            if isinf(C[i,j]) break end
+            if iszero(C[i,j]) break end
             nᵢ = N[i]
             nⱼ = N[j]
             # nodal feasibility check
@@ -126,7 +126,6 @@ function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances
             m += N[k+1].q / V[begin].q
             insertnode!(n, d, d, v, s)
         end
-        # display(visualize(s))       # TODO: Remove
         while sum(isopt.(V)) > ceil(Int, m)
             z = f(s)
             # iterate through each vehicle pair
