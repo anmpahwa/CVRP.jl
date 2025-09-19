@@ -27,11 +27,16 @@ mutable struct Vehicle
     Vehicle(i, q) = new(i, q, 1, 1, 0, 0, 0., 0.)
 end
 
-mutable struct Solution
+struct Graph
     N::Vector{Node}     # nodes
     A::Matrix{Arc}      # arcs
     V::Vector{Vehicle}  # vehicles
+    Graph(N, A, V) = new(N, A, V)
+end
+
+mutable struct Solution
+    G::Graph            # graph
     c::Float64          # cost
     p::Float64          # penalty
-    Solution(N, A, V) = new(N, A, V, 0., 0.)
+    Solution(G) = new(G, 0., 0.)
 end

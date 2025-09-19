@@ -1,8 +1,9 @@
 function best!(rng::AbstractRNG, s::Solution; mode::Symbol)
     # initialize
     φ = isequal(mode, :ptb)
-    N = s.N
-    V = s.V
+    G = s.G
+    N = G.N
+    V = G.V
     L = [n for n ∈ N if iscustomer(n) && isopen(n)] # set of open nodes
     I = eachindex(L)
     J = eachindex(V)
@@ -51,8 +52,9 @@ end
 function greedy!(rng::AbstractRNG, s::Solution; mode::Symbol)
     # initialize
     φ = isequal(mode, :ptb)
-    N = s.N
-    V = s.V 
+    G = s.G
+    N = G.N
+    V = G.V 
     L = [n for n ∈ N if iscustomer(n) && isopen(n)] # set of open nodes
     I = eachindex(L)
     J = eachindex(V)
@@ -106,8 +108,9 @@ end
 function regretk!(rng::AbstractRNG, s::Solution; k::Int)
     # initialize
     φ = isequal(mode, :ptb)
-    N = s.N
-    V = s.V 
+    G = s.G
+    N = G.N
+    V = G.V 
     L = [n for n ∈ N if iscustomer(n) && isopen(n)] # set of open nodes
     I = eachindex(L)
     J = eachindex(V)

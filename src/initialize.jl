@@ -33,16 +33,17 @@ function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
     V = Vector{Vehicle}(undef, n-1)
     for i ∈ 1:(n-1) V[i] = Vehicle(i, q) end
     # create graph
-    G = (N, A, V)
+    G = Graph(N, A, V)
     return G
 end
 
 function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances"), method=:static)
     # pre-initialize
     G = build(instance; dir=dir)
-    s = Solution(G...)
-    N = s.N
-    V = s.V
+    s = Solution(G)
+    G = s.G
+    N = G.N
+    V = G.V
     d = N[1]
     # Static Method
     if method == :static

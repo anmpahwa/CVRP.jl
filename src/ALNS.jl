@@ -28,6 +28,7 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
     L = eachindex(Ψₗ)
     X = OffsetVector{UInt}(undef, 0:j*(n+1))
     Z = OffsetVector{Float64}(undef, 0:j*(n+1))
+    G = sₒ.G
     # Step 1: Initialize
     s = deepcopy(sₒ)
     x = h(s)
@@ -57,7 +58,7 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
             Cᵢ[i] += 1
             # Step 2.3.2: Using the selected removal and insertion operators destroy and repair the current solution to develop a new solution.
             η = rand(rng)
-            e = lastindex(s.N) - 1
+            e = lastindex(G.N) - 1
             q = Int(floor(((1 - η) * min(e̲, μ̲ * e) + η * min(e̅, μ̅ * e))))
             s′= deepcopy(s)
             remove!(rng, q, s′, Ψᵣ[r])

@@ -1,11 +1,11 @@
 function removenode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     # fetch features
+    G = s.G
     x = v.x * v.n
     y = v.y * v.n
-    aₜₙ = s.A[t.i, n.i]
-    aₙₕ = s.A[n.i, h.i]
-    aₜₕ = s.A[t.i, h.i]
-    δ = (aₜₙ.c + aₙₕ.c) - aₜₕ.c
+    aₜₙ = G.A[t.i, n.i]
+    aₙₕ = G.A[n.i, h.i]
+    aₜₕ = G.A[t.i, h.i]
     # remove penalty
     s.p -= (v.l > v.q) ? (v.l - v.q) : 0
     # update node
@@ -23,7 +23,7 @@ function removenode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     v.x = iszero(v.n) ? 0. : (x - n.x) / v.n
     v.y = iszero(v.n) ? 0. : (y - n.y) / v.n
     # update solution cost
-    s.c -= δ
+    s.c -= (aₜₙ.c + aₙₕ.c) - aₜₕ.c
     # add penalty
     s.p += (v.l > v.q) ? (v.l - v.q) : 0
     # return solution
@@ -32,12 +32,12 @@ end
 
 function insertnode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     # fetch features
+    G = s.G
     x = v.x * v.n
     y = v.y * v.n
-    aₜₙ = s.A[t.i, n.i]
-    aₙₕ = s.A[n.i, h.i]
-    aₜₕ = s.A[t.i, h.i]
-    δ = (aₜₙ.c + aₙₕ.c) - aₜₕ.c
+    aₜₙ = G.A[t.i, n.i]
+    aₙₕ = G.A[n.i, h.i]
+    aₜₕ = G.A[t.i, h.i]
     # remove penalty
     s.p -= (v.l > v.q) ? (v.l - v.q) : 0
     # update node
@@ -55,7 +55,7 @@ function insertnode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     v.x = (x + n.x) / v.n
     v.y = (y + n.y) / v.n
     # update solution cost
-    s.c += δ
+    s.c += (aₜₙ.c + aₙₕ.c) - aₜₕ.c
     # add penalty
     s.p += (v.l > v.q) ? (v.l - v.q) : 0
     # return solution

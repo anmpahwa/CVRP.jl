@@ -21,13 +21,14 @@ end
 end
 
 function vectorize(s::Solution)
+    G = s.G
     Z = Int[]
-    for v ∈ s.V
+    for v ∈ G.V
         push!(Z, 1)
         i = v.s
         for _ ∈ 1:v.n
             push!(Z, i)
-            n = s.N[i]
+            n = G.N[i]
             i = n.h
         end
         push!(Z, 1)
@@ -36,7 +37,7 @@ function vectorize(s::Solution)
 end
 
 @inline function isfeasible(s::Solution)
-    for v ∈ s.V if v.l > v.q return false end end
+    for v ∈ G.V if v.l > v.q return false end end
     return true
 end
 

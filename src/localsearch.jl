@@ -1,7 +1,8 @@
 function intramove!(rng::AbstractRNG, k::Int, s::Solution)
     # initialize
-    N = s.N
-    V = s.V
+    G = s.G
+    N = G.N
+    V = G.V
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
     # iterate
     for _ ∈ 1:k
@@ -45,8 +46,9 @@ end
 
 function intermove!(rng::AbstractRNG, k::Int, s::Solution)
     # initialize
-    N = s.N
-    V = s.V
+    G = s.G
+    N = G.N
+    V = G.V
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
     R = [[isequal(u, v) ? 0. : relatedness(u, v) for u ∈ V] for v ∈ V]
     # iterate
@@ -92,8 +94,9 @@ end
 function intraswap!(rng::AbstractRNG, k::Int, s::Solution)
     # tₘ → m → hₘ and tₙ → n → hₙ
     # initialize
-    N = s.N
-    V = s.V
+    G = s.G
+    N = G.N
+    V = G.V
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
     R = [[(isequal(n, m) || !isequal(n.v, m.v)) ? 0. : relatedness(n, m) for m ∈ N] for n ∈ N]
     # iterate
@@ -162,9 +165,10 @@ end
 function interswap!(rng::AbstractRNG, k::Int, s::Solution)
     # tₘ → m → hₘ and tₙ → n → hₙ
     # initialize
-    N = s.N
-    V = s.V
-    W = [isone(i) ? 0 : 1 for i ∈ eachindex(s.N)]
+    G = s.G
+    N = G.N
+    V = G.V
+    W = [isone(i) ? 0 : 1 for i ∈ eachindex(G.N)]
     R = [[(isequal(n, m) || isequal(n.v, m.v)) ? 0 : relatedness(n, m) for m ∈ N] for n ∈ N]
     # iterate
     for _ ∈ 1:k
@@ -231,8 +235,9 @@ end
 
 function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
     # initialize
-    N = s.N
-    V = s.V
+    G = s.G
+    N = G.N
+    V = G.V
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
     R = [[(isequal(n, m) || !isequal(n.v, m.v)) ? 0. : relatedness(n, m) for m ∈ N] for n ∈ N]
     # iterate
@@ -285,8 +290,9 @@ end
 
 function interopt!(rng::AbstractRNG, k::Int, s::Solution)
     # initialize
-    N = s.N
-    V = s.V
+    G = s.G
+    N = G.N
+    V = G.V
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
     R = [[(isequal(n, m) || isequal(n.v, m.v)) ? 0. : relatedness(n, m) for m ∈ N] for n ∈ N]
     # iterate
