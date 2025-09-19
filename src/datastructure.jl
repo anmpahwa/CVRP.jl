@@ -1,7 +1,7 @@
 mutable struct Node
     i::Int              # index
-    x::Int              # ordinate
-    y::Int              # abcissa
+    x::Int              # abcissa
+    y::Int              # ordinate
     q::Int              # demand
     t::Int              # tail node index
     h::Int              # head node index
@@ -22,10 +22,9 @@ mutable struct Vehicle
     e::Int              # end node index
     n::Int              # number of customers served
     l::Int              # load
-    x::Float64          # centroid ordinate
-    y::Float64          # centroid abcissa
-    c::Float64          # cost
-    Vehicle(i, q) = new(i, q, 1, 1, 0, 0, 0., 0., 0.)
+    x::Float64          # centroid abcissa
+    y::Float64          # centroid ordinate
+    Vehicle(i, q) = new(i, q, 1, 1, 0, 0, 0., 0.)
 end
 
 mutable struct Solution
