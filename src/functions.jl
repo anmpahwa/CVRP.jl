@@ -1,21 +1,21 @@
-isdepot(n::Node) = isone(n.i)
+@inline isdepot(n::Node) = isone(n.i)
 
-iscustomer(n::Node) = !isdepot(n)
+@inline iscustomer(n::Node) = !isdepot(n)
 
-isopen(n::Node) = iszero(n.v)
+@inline isopen(n::Node) = iszero(n.v)
 
-isclose(n::Node) = !isopen(n)
+@inline isclose(n::Node) = !isopen(n)
 
-function relatedness(m::Node, n::Node)
+@inline function relatedness(m::Node, n::Node)
     z = sqrt((m.x - n.x)^2 + (m.y - n.y)^2) * abs(m.q - n.q)
     r = 1 / (z + 1)
     return r
 end
 
-isopt(v::Vehicle) = !iszero(v.n)
+@inline isopt(v::Vehicle) = !iszero(v.n)
 
-function relatedness(u::Vehicle, v::Vehicle)
-    z = sqrt((u.x - v.x)^2 + (u.y - v.y)^2) * abs(u.l - v.l) * abs(u.n - v.n)
+@inline function relatedness(u::Vehicle, v::Vehicle)
+    z = hypot(u.x - v.x, u.y - v.y) * abs(u.l - v.l) * abs(u.n - v.n)
     r = 1 / (z + 1)
     return r
 end
@@ -35,11 +35,11 @@ function vectorize(s::Solution)
     return Z
 end
 
-function isfeasible(s::Solution)
+@inline function isfeasible(s::Solution)
     for v ∈ s.V if v.l > v.q return false end end
     return true
 end
 
-f(s::Solution) = s.c + s.p * 10 ^ ceil(log10(s.c))
+@inline f(s::Solution) = s.c + s.p * 10 ^ ceil(log10(s.c))
 
-h(s::Solution) = hash(vectorize(s))
+@inline h(s::Solution) = hash(vectorize(s))
