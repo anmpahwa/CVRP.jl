@@ -23,7 +23,8 @@ function visualize(s::Solution; backend=gr)
     backend()
     fig = plot(legend=:none)
     # nodes
-    N = s.N
+    G = s.G
+    N = G.N
     K = lastindex(N)
     X = zeros(Float64, K)       # abcissa
     Y = zeros(Float64, K)       # ordinate
