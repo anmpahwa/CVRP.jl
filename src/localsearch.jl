@@ -110,12 +110,12 @@ function intraswap!(rng::AbstractRNG, k::Int, s::Solution)
         # swap the two nodes
         if isdepot(m) continue end
         if isequal(n,m) continue end
-        tₙ= N[n.t]
-        hₙ= N[n.h]
-        vₙ= V[n.v]
-        tₘ= N[m.t]
-        hₘ= N[m.h]
-        vₘ= V[m.v]
+        tₙ = N[n.t]
+        hₙ = N[n.h]
+        vₙ = V[n.v]
+        tₘ = N[m.t]
+        hₘ = N[m.h]
+        vₘ = V[m.v]
         # case 1: tₘ → m (tₙ) → n (hₘ) → hₙ
         if isequal(n, hₘ) # || isequal(m, tₙ)
             removenode!(n, tₙ, hₙ, vₙ, s)
@@ -136,12 +136,12 @@ function intraswap!(rng::AbstractRNG, k::Int, s::Solution)
         c  = z′ - z
         if c < 0 continue end
         # reswap the two nodes
-        tₙ= N[n.t]
-        hₙ= N[n.h]
-        vₙ= V[n.v]
-        tₘ= N[m.t]
-        hₘ= N[m.h]
-        vₘ= V[m.v]
+        tₙ = N[n.t]
+        hₙ = N[n.h]
+        vₙ = V[n.v]
+        tₘ = N[m.t]
+        hₘ = N[m.h]
+        vₘ = V[m.v]
         # case 1: tₘ → m (tₙ) → n (hₘ) → hₙ
         if isequal(n, hₘ) # || isequal(m, tₙ)
             removenode!(n, tₙ, hₙ, vₙ, s)
@@ -181,12 +181,12 @@ function interswap!(rng::AbstractRNG, k::Int, s::Solution)
         # swap the two nodes
         if isdepot(m) continue end
         if isequal(n,m) continue end
-        tₙ= N[n.t]
-        hₙ= N[n.h]
-        vₙ= V[n.v]
-        tₘ= N[m.t]
-        hₘ= N[m.h]
-        vₘ= V[m.v]
+        tₙ = N[n.t]
+        hₙ = N[n.h]
+        vₙ = V[n.v]
+        tₘ = N[m.t]
+        hₘ = N[m.h]
+        vₘ = V[m.v]
         # case 1: tₘ → m (tₙ) → n (hₘ) → hₙ
         if isequal(n, hₘ) # || isequal(m, tₙ)
             removenode!(n, tₙ, hₙ, vₙ, s)
@@ -207,12 +207,12 @@ function interswap!(rng::AbstractRNG, k::Int, s::Solution)
         c  = z′ - z
         if c < 0 continue end
         # reswap the two nodes
-        tₙ= N[n.t]
-        hₙ= N[n.h]
-        vₙ= V[n.v]
-        tₘ= N[m.t]
-        hₘ= N[m.h]
-        vₘ= V[m.v]
+        tₙ = N[n.t]
+        hₙ = N[n.h]
+        vₙ = V[n.v]
+        tₘ = N[m.t]
+        hₘ = N[m.h]
+        vₘ = V[m.v]
         # case 1: tₘ → m (tₙ) → n (hₘ) → hₙ
         if isequal(n, hₘ) # || isequal(m, tₙ)
             removenode!(n, tₙ, hₙ, vₙ, s)
@@ -249,39 +249,42 @@ function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
         # sample another node from the same route, weighted by relatedness
         m = sample(rng, N, Weights(R[n.i]))
         # perform operations
+        if isdepot(m) continue end
         if isequal(n,m) continue end
-        v = V[n.v]
-        tₒ= n
-        hₙ= N[n.h]
-        tₘ= N[m.t]
-        hₘ= N[m.h]
-        while !isequal(n, tₘ) # || isequal(m, hₙ)
-            removenode!(m, tₘ, hₘ, v, s)
-            insertnode!(m, tₒ, hₙ, v, s)
-            tₒ= m 
-            m = tₘ
-            hₙ= N[n.h]
-            tₘ= N[m.t]
-            hₘ= N[m.h]
+        vₙ = V[n.v]
+        vₘ = V[m.v]
+        tₒ = N[n.i]
+        hₒ = N[n.h]
+        tₘ = N[m.t]
+        hₘ = N[m.h]
+        while !isequal(m, hₒ)
+            removenode!(m, tₘ, hₘ, vₘ, s)
+            insertnode!(m, tₒ, hₒ, vₙ, s)
+            tₒ = m 
+            hₒ = N[tₒ.h]
+            m  = tₘ
+            tₘ = N[m.t]
+            hₘ = N[m.h]
         end
         # evaluate the change in objective function value
         z′ = f(s)
         c  = z′ - z
         if c < 0 continue end
         # reperform operations
-        v = V[n.v]
-        tₒ= n
-        hₙ= N[n.h]
-        tₘ= N[m.t]
-        hₘ= N[m.h]
-        while !isequal(n, tₘ) # || isequal(m, hₙ)
-            removenode!(m, tₘ, hₘ, v, s)
-            insertnode!(m, tₒ, hₙ, v, s)
-            tₒ= m 
-            m = tₘ
-            hₙ= N[n.h]
-            tₘ= N[m.t]
-            hₘ= N[m.h]
+        vₙ = V[n.v]
+        vₘ = V[m.v]
+        tₒ = N[n.i]
+        hₒ = N[n.h]
+        tₘ = N[m.t]
+        hₘ = N[m.h]
+        while !isequal(m, hₒ)
+            removenode!(m, tₘ, hₘ, vₘ, s)
+            insertnode!(m, tₒ, hₒ, vₙ, s)
+            tₒ = m 
+            hₒ = N[tₒ.h]
+            m  = tₘ
+            tₘ = N[m.t]
+            hₘ = N[m.h]
         end
     end
     # return solution
