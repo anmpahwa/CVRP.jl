@@ -44,3 +44,7 @@ end
 @inline f(s::Solution) = s.c + s.p * 10 ^ ceil(log10(s.c))
 
 @inline h(s::Solution) = hash(vectorize(s))
+
+@inline Base.deepcopy_internal(G::Graph, dict::IdDict) = Graph(Base.deepcopy_internal(G.N, dict), G.A, Base.deepcopy_internal(G.V, dict))
+
+@inline Base.deepcopy_internal(s::Solution, dict::IdDict) = Solution(Base.deepcopy_internal(s.G, dict), s.c, s.p)
