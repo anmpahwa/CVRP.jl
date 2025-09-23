@@ -243,25 +243,25 @@ function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
     # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
-        z = f(s)
+        z  = f(s)
         # sample a random node
-        n = sample(rng, N, Weights(W))
+        n  = sample(rng, N, Weights(W))
+        vₙ = V[n.v]
         # sample another node from the same route, weighted by relatedness
-        m = sample(rng, N, Weights(R[n.i]))
+        m  = sample(rng, N, Weights(R[n.i]))
+        vₘ = V[m.v]
         # perform operations
         if isdepot(m) continue end
         if isequal(n,m) continue end
-        vₙ = V[n.v]
-        vₘ = V[m.v]
-        tₒ = N[n.i]
-        hₒ = N[n.h]
+        tₙ = N[n.i]
+        hₙ = N[n.h]
         tₘ = N[m.t]
         hₘ = N[m.h]
         while !isequal(m, hₒ)
             removenode!(m, tₘ, hₘ, vₘ, s)
-            insertnode!(m, tₒ, hₒ, vₙ, s)
-            tₒ = m 
-            hₒ = N[tₒ.h]
+            insertnode!(m, tₙ, hₙ, vₙ, s)
+            tₙ = m 
+            hₙ = N[tₙ.h]
             m  = tₘ
             tₘ = N[m.t]
             hₘ = N[m.h]
@@ -271,17 +271,15 @@ function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
         c  = z′ - z
         if c < 0 continue end
         # reperform operations
-        vₙ = V[n.v]
-        vₘ = V[m.v]
-        tₒ = N[n.i]
-        hₒ = N[n.h]
+        tₙ = N[n.i]
+        hₙ = N[n.h]
         tₘ = N[m.t]
         hₘ = N[m.h]
         while !isequal(m, hₒ)
             removenode!(m, tₘ, hₘ, vₘ, s)
-            insertnode!(m, tₒ, hₒ, vₙ, s)
-            tₒ = m 
-            hₒ = N[tₒ.h]
+            insertnode!(m, tₙ, hₙ, vₙ, s)
+            tₙ = m 
+            hₙ = N[tₙ.h]
             m  = tₘ
             tₘ = N[m.t]
             hₘ = N[m.h]
@@ -301,45 +299,77 @@ function interopt!(rng::AbstractRNG, k::Int, s::Solution)
     # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
-        z = f(s)
+        z  = f(s)
         # sample a random node
-        n = sample(rng, N, Weights(W))
+        n  = sample(rng, N, Weights(W))
+        vₙ = V[n.v]
         # sample another node from the same route, weighted by relatedness
-        m = sample(rng, N, Weights(R[n.i]))
-        # perform operations
+        m  = sample(rng, N, Weights(R[n.i]))
+        vₘ = V[m.v]
+        # perform operationss
+        if isdepot(m) continue end
         if isequal(n,m) continue end
-        v = V[n.v]
-        tₒ= n
-        hₙ= N[n.h]
-        tₘ= N[m.t]
-        hₘ= N[m.h]
-        while !isequal(n, tₘ) # || isequal(m, hₙ)
-            removenode!(m, tₘ, hₘ, v, s)
-            insertnode!(m, tₒ, hₙ, v, s)
-            tₒ= m 
-            m = tₘ
-            hₙ= N[n.h]
-            tₘ= N[m.t]
-            hₘ= N[m.h]
+        tₙ = N[n.i]
+        hₙ = N[n.h]
+        o  = N[m.i]
+        tₘ = N[m.t]
+        hₘ = N[m.h]
+        while !isdepot(o)
+            removenode!(o, tₘ, hₘ, vₘ, s)
+            insertnode!(o, tₙ, hₙ, vₙ, s)
+            tₙ = o 
+            hₙ = N[tₙ.h]
+            o  = hₘ
+            tₘ = N[o.t]
+            hₘ = N[o.h]
+        end
+        m  = hₙ
+        tₘ = N[vₘ.e]
+        hₘ = N[1]
+        o  = hₙ
+        tₙ = N[o.t]
+        hₙ = N[o.h]
+        while !isdepot(o)
+            removenode!(o, tₙ, hₙ, vₙ, s)
+            insertnode!(o, tₘ, hₘ, vₘ, s)
+            tₘ = o
+            hₘ = N[tₘ.h]
+            o  = hₙ
+            tₙ = N[o.t]
+            hₙ = N[o.h]
         end
         # evaluate the change in objective function value
         z′ = f(s)
         c  = z′ - z
         if c < 0 continue end
         # reperform operations
-        v = V[n.v]
-        tₒ= n
-        hₙ= N[n.h]
-        tₘ= N[m.t]
-        hₘ= N[m.h]
-        while !isequal(n, tₘ) # || isequal(m, hₙ)
-            removenode!(m, tₘ, hₘ, v, s)
-            insertnode!(m, tₒ, hₙ, v, s)
-            tₒ= m 
-            m = tₘ
-            hₙ= N[n.h]
-            tₘ= N[m.t]
-            hₘ= N[m.h]
+        tₙ = N[n.i]
+        hₙ = N[n.h]
+        o  = N[m.i]
+        tₘ = N[m.t]
+        hₘ = N[m.h]
+        while !isdepot(o)
+            removenode!(o, tₘ, hₘ, vₘ, s)
+            insertnode!(o, tₙ, hₙ, vₙ, s)
+            tₙ = o 
+            hₙ = N[tₙ.h]
+            o  = hₘ
+            tₘ = N[o.t]
+            hₘ = N[o.h]
+        end
+        tₘ = N[vₘ.e]
+        hₘ = N[1]
+        o  = hₙ
+        tₙ = N[o.t]
+        hₙ = N[o.h]
+        while !isdepot(o)
+            removenode!(o, tₙ, hₙ, vₙ, s)
+            insertnode!(o, tₘ, hₘ, vₘ, s)
+            tₘ = o
+            hₘ = N[tₘ.h]
+            o  = hₙ
+            tₙ = N[o.t]
+            hₙ = N[o.h]
         end
     end
     # return solution
