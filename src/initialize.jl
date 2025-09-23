@@ -43,6 +43,7 @@ function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances
     s = Solution(G)
     G = s.G
     N = G.N
+    A = G.A
     V = G.V
     d = N[1]
     # Static Method
@@ -56,30 +57,15 @@ function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances
             v = V[k-1]
             insertnode!(n, d, d, v, s)
         end
-        z = f(s)
         # iterate through each node pair
         for i ∈ K
-            nᵢ = N[i]
-            if isdepot(nᵢ) continue end
-            vᵢ = V[nᵢ.v]
-            # remove node n from its original position
-            removenode!(nᵢ, d, d, vᵢ, s)
+            if isone(i) continue end
             for j ∈ K
-                if isequal(i,j) continue end
-                nⱼ = N[j]
-                if isdepot(nⱼ) continue end
-                vⱼ = V[nⱼ.v]
-                # merge node n into node m
-                insertnode!(nᵢ, nⱼ, d, vⱼ, s)
-                # compute savings 
-                z⁻ = f(s)
-                Δ  = z - z⁻
-                C[i,j] = Δ
-                # unmerge node n from node m
-                removenode!(nᵢ, nⱼ, d, vⱼ, s)
+                if isone(j) continue end
+                if j ≥ i continue end
+                δ = (A[i,1].c + A[1,j].c) - A[i,j].c
+                C[i,j] = δ
             end
-            # insert node n into its original position
-            insertnode!(nᵢ, d, d, vᵢ, s)
         end
         # perform feasible greedy merge
         P = sortperm(vec(C), rev=true)
