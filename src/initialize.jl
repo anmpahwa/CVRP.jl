@@ -1,3 +1,8 @@
+"""
+    build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
+
+Returns `Graph` for `instance` stored at `dir`
+"""
 function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
     # read instance file
     df = CSV.read("$dir/$instance.vrp", DataFrame, silencewarnings=true)
@@ -37,6 +42,15 @@ function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
     return G
 end
 
+"""
+    initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances"), method=:static)
+
+Returns initial solution for `instance` stored at `dir` using Clarke & Wright Algorithm with either
+static or dynamic `method`.
+
+In static version, savings are computed and stored before performing the merge operations, whereas in
+dynamic version, relevant savings are recomputed after every merge. 
+"""
 function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances"), method=:static)
     # pre-initialize
     G = build(instance; dir=dir)
