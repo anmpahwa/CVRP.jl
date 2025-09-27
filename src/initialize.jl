@@ -1,7 +1,7 @@
 """
     build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
 
-Returns `Graph` for `instance` stored at `dir`
+Returns `Graph` for `instance` stored at `dir`.
 """
 function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
     # read instance file
