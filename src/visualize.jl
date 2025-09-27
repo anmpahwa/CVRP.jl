@@ -1,6 +1,7 @@
 function visualize(instance::String; backend=gr)
     backend()
-    N,_ = build(instance)
+    G = build(instance)
+    N = G.N
     fig = plot(legend=:none)
     K = lastindex(N)
     X = zeros(Float64, K)       # abcissa
