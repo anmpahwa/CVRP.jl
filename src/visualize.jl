@@ -1,3 +1,10 @@
+"""
+    visualize(instance::String; backend=gr)
+
+Returns plot visualizing the `instance` using the given `backend` library.
+
+Note: the plot illustrates the customer nodes and the depot node.
+"""
 function visualize(instance::String; backend=gr)
     backend()
     G = build(instance)
@@ -20,6 +27,14 @@ function visualize(instance::String; backend=gr)
     return fig
 end
 
+"""
+    visualize(s::Solution; backend=gr)
+
+Returns plot visualizing the solution `s` using the given `backend` library.
+
+Note: the plot illustrates the customer nodes, depot node, and arcs traversed
+by the vehicle in the solution.
+"""
 function visualize(s::Solution; backend=gr)
     backend()
     fig = plot(legend=:none)
