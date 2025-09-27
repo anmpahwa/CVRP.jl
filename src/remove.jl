@@ -12,6 +12,7 @@ function randomcustomer!(rng::AbstractRNG, k::Int, s::Solution)
         v = G.V[n.v]
         removenode!(n, t, h, v, s)
     end
+    # return solution
     return s
 end
 
@@ -31,6 +32,7 @@ function relatedcustomer!(rng::AbstractRNG, k::Int, s::Solution)
         v = G.V[n.v]
         removenode!(n, t, h, v, s)
     end
+    # return solution
     return s
 end
 
@@ -60,6 +62,9 @@ function worstcustomer!(rng::AbstractRNG, k::Int, s::Solution)
         v = G.V[n.v]
         removenode!(n, t, h, v, s)
     end
+    # return solution
+    return s
+end
     return s
 end
 
@@ -69,7 +74,7 @@ function randomvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     W = ones(Float64, length(G.V))
     # loop: until at least k nodes are removed
     m = 0
-    while true
+    while m ≤ k
         # sample a vehicle
         j = sample(rng, eachindex(G.V), Weights(W))
         v = G.V[j]
@@ -85,8 +90,8 @@ function randomvehicle!(rng::AbstractRNG, k::Int, s::Solution)
         end
         # update vehicle weight
         W[j] = 0.
-        if m ≥ k break end
     end
+    # return solution
     return s
 end
 
@@ -99,7 +104,7 @@ function relatedvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     W = [relatedness(G.V[i], G.V[p]) for i ∈ eachindex(G.V)]
     # loop: until at least k nodes are removed
     m = 0
-    while true
+    while m ≤ k
         # sample a vehicle
         j = sample(rng, eachindex(G.V), Weights(W))
         v = G.V[j]
@@ -115,8 +120,8 @@ function relatedvehicle!(rng::AbstractRNG, k::Int, s::Solution)
         end
         # update vehicle weight
         W[j] = 0.
-        if m ≥ k break end
     end
+    # return solution
     return s
 end
 
@@ -126,7 +131,7 @@ function worstvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     W = [v.l / v.q for v ∈ G.V]
     # loop: until at least k nodes are removed
     m = 0
-    while true
+    while m ≤ k
         # sample a vehicle
         j = sample(rng, eachindex(G.V), Weights(W))
         v = G.V[j]
@@ -142,7 +147,7 @@ function worstvehicle!(rng::AbstractRNG, k::Int, s::Solution)
         end
         # update vehicle weight
         W[j] = 0.
-        if m ≥ k break end
     end
+    # return solution
     return s
 end
