@@ -65,6 +65,107 @@ function worstcustomer!(rng::AbstractRNG, k::Int, s::Solution)
     # return solution
     return s
 end
+
+function randomarc!(rng::Abstractrng, k::Int, s::Solution)
+    G = s.G
+    # set arc weights: uniform
+    W = ones(Float64, length(G.A))
+    # loop: until at least k nodes are removed
+    m = 0
+    while m ≤ k
+        # sample an arc
+        j = sample(rng, CartesianIndices(G.A), Weights(W))
+        a = G.A[j]
+        n = G.N[a.t]
+        t = G.N[n.t]
+        h = G.N[n.h]
+        v = G.V[n.v]
+        if iscustomer(n)
+            removenode!(n, t, h, v, s)
+            m += 1
+        end
+        n = G.N[a.h]
+        t = G.N[n.t]
+        h = G.N[n.h]
+        v = G.V[n.v]
+        if iscustomer(n)
+            removenode!(n, t, h, v, s)
+            m += 1
+        end
+        # update arc weight
+        W[j] = 0.
+    end
+    # return solution
+    return s
+end
+
+function relatedarc!(rng::Abstractrng, k::Int, s::Solution)
+    G = s.G
+    # randomize a pivot arc
+    p = sample(rng, eachindex(G.A))
+    # set arc weights: relatedness
+    W = [relatedness(G.A[i], G.A[p]) for i ∈ eachindex(G.V)]
+    # loop: until at least k nodes are removed
+    m = 0
+    # loop: until at least k nodes are removed
+    m = 0
+    while m ≤ k
+        # sample an arc
+        j = sample(rng, CartesianIndices(G.A), Weights(W))
+        a = G.A[j]
+        n = G.N[a.t]
+        t = G.N[n.t]
+        h = G.N[n.h]
+        v = G.V[n.v]
+        if iscustomer(n)
+            removenode!(n, t, h, v, s)
+            m += 1
+        end
+        n = G.N[a.h]
+        t = G.N[n.t]
+        h = G.N[n.h]
+        v = G.V[n.v]
+        if iscustomer(n)
+            removenode!(n, t, h, v, s)
+            m += 1
+        end
+        # update arc weight
+        W[j] = 0.
+    end
+    # return solution
+    return s
+end
+
+function worstarc!(rng::Abstractrng, k::Int, s::Solution)
+    G = s.G
+    # set arc weights: cost
+    W = [a.c for a ∈ G.A]
+    # loop: until at least k nodes are removed
+    m = 0
+    while m ≤ k
+        # sample an arc
+        j = sample(rng, CartesianIndices(G.A), Weights(W))
+        a = G.A[j]
+        n = G.N[a.t]
+        t = G.N[n.t]
+        h = G.N[n.h]
+        v = G.V[n.v]
+        if iscustomer(n)
+            removenode!(n, t, h, v, s)
+            m += 1
+        end
+        n = G.N[a.h]
+        t = G.N[n.t]
+        h = G.N[n.h]
+        v = G.V[n.v]
+        if iscustomer(n)
+            removenode!(n, t, h, v, s)
+            m += 1
+        end
+        # update arc weight
+        W[j] = 0.
+    end
+    # return solution
     return s
 end
 
