@@ -66,7 +66,7 @@ function worstcustomer!(rng::AbstractRNG, k::Int, s::Solution)
     return s
 end
 
-function randomarc!(rng::Abstractrng, k::Int, s::Solution)
+function randomarc!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
     # set arc weights: uniform
     W = ones(Float64, length(G.A))
@@ -99,7 +99,7 @@ function randomarc!(rng::Abstractrng, k::Int, s::Solution)
     return s
 end
 
-function relatedarc!(rng::Abstractrng, k::Int, s::Solution)
+function relatedarc!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
     # randomize a pivot arc
     p = sample(rng, eachindex(G.A))
@@ -136,7 +136,7 @@ function relatedarc!(rng::Abstractrng, k::Int, s::Solution)
     return s
 end
 
-function worstarc!(rng::Abstractrng, k::Int, s::Solution)
+function worstarc!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
     # set arc weights: cost
     W = [a.c for a ∈ G.A]
