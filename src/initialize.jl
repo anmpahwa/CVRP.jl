@@ -102,7 +102,7 @@ function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances
             if vᵢ.l + vⱼ.l > vⱼ.q continue end
             # merge
             k = vᵢ.n
-            φ = isdepot(tⱼ)
+            φ = isdepot(hⱼ)
             for _ ∈ 1:k
                 nᵢ = N[vᵢ.s]
                 nⱼ = N[j]
@@ -111,7 +111,8 @@ function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances
                 hᵢ = N[nᵢ.h]
                 hⱼ = N[nⱼ.h]
                 removenode!(nᵢ, tᵢ, hᵢ, vᵢ, s)
-                φ ? insertnode!(nᵢ, tⱼ, nⱼ, vⱼ, s) : insertnode!(nᵢ, nⱼ, hⱼ, vⱼ, s)
+                if φ insertnode!(nᵢ, nⱼ, hⱼ, vⱼ, s)
+                else insertnode!(nᵢ, tⱼ, nⱼ, vⱼ, s) end
             end
         end
     end
