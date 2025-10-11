@@ -22,19 +22,20 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
     μ̅, e̅ = χ.μ̅, χ.e̅
     ω̅, τ̅ = χ.ω̅, χ.τ̅
     ω̲, τ̲ = χ.ω̲, χ.τ̲
-    θ, ρ = χ.θ, χ.ρ   
+    θ, ρ = χ.θ, χ.ρ
+    e = lastindex(G.N)
     R = eachindex(Ψᵣ)
     I = eachindex(Ψᵢ)
     L = eachindex(Ψₗ)
-    X = OffsetVector{UInt}(undef, 0:j*(n+1))
-    Z = OffsetVector{Float64}(undef, 0:j*(n+1))
+    X = Vector{UInt}(undef, 1 + j * (n + 1))
+    Z = Vector{Float64}(undef, 1 + j * (n + 1))
     G = sₒ.G
     # Step 1: Initialize
     s = deepcopy(sₒ)
     x = h(s)
     z = f(s)
-    X[0] = x
-    Z[0] = z
+    X[1] = x
+    Z[1] = z
     s⃰ = s
     z⃰ = z
     t = ω̅ * z⃰/log(1/τ̅)
@@ -52,13 +53,12 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
         # Step 2.3: Loop over iterations within the segment
         for v ∈ 1:n
             # Step 2.3.1: Randomly select a removal and an insertion operator based on operator selection probabilities, and consequently update count for the selected operators.
-            r = sample(rng, eachindex(Ψᵣ), Weights(Pᵣ))
-            i = sample(rng, eachindex(Ψᵢ), Weights(Pᵢ))
+            r = sample(rng, R, Weights(Pᵣ))
+            i = sample(rng, I, Weights(Pᵢ))
             Cᵣ[r] += 1
             Cᵢ[i] += 1
             # Step 2.3.2: Using the selected removal and insertion operators destroy and repair the current solution to develop a new solution.
             η = rand(rng)
-            e = lastindex(G.N) - 1
             q = Int(floor(((1 - η) * min(e̲, μ̲ * e) + η * min(e̅, μ̅ * e))))
             s′= deepcopy(s)
             remove!(rng, q, s′, Ψᵣ[r])
@@ -94,8 +94,8 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
                 end
             end
             x = x′
-            X[(u - 1) * (n + 1) + v] = x
-            Z[(u - 1) * (n + 1) + v] = z
+            X[1 + (u - 1) * (n + 1) + v] = x
+            Z[1 + (u - 1) * (n + 1) + v] = z
             t = max(t * θ, ω̲ * z⃰/log(1/τ̲))
             if !mute next!(p) end
         end
@@ -119,8 +119,8 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
             z = z′
         end
         x = x′
-        X[u * (n + 1)] = x
-        Z[u * (n + 1)] = z
+        X[1 + u * (n + 1)] = x
+        Z[1 + u * (n + 1)] = z
     end
     # Step 3: Display the convergence plot and return the best solution
     if !mute display(pltcnv(Z)) end
