@@ -33,18 +33,6 @@ and to service status for a customer node.
 @inline isclose(n::Node) = !isopen(n)
 
 """
-    relatedness(m::Node, n::Node)
-
-Returns the relatedness between nodes `m` and `n`, calculated based on 
-their spatial proximity and demand similarity.
-"""
-@inline function relatedness(m::Node, n::Node)
-    z = hypot(m.x - n.x, m.y - n.y) * abs(m.q - n.q)
-    r = 1 / (z + 1)
-    return r
-end
-
-"""
     isopt(v::Vehicle)
 
 Returns `false` is vehicle `v` serves zero customers, else returns `true`.
@@ -52,18 +40,6 @@ Returns `false` is vehicle `v` serves zero customers, else returns `true`.
 Operational refers to utilization status.
 """
 @inline isopt(v::Vehicle) = !iszero(v.n)
-
-"""
-    relatedness(u::Vehicle, v::Vehicle)
-
-Returns the relatedness between vehicles `u` and `v`, calculated based on 
-their spatial proximity and utilization similarity (load and customers). 
-"""
-@inline function relatedness(u::Vehicle, v::Vehicle)
-    z = hypot(u.x - v.x, u.y - v.y) * abs(u.l - v.l) * abs(u.n - v.n)
-    r = 1 / (z + 1)
-    return r
-end
 
 """
     vectorize(s::Solution)
