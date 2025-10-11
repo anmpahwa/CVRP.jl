@@ -1,253 +1,383 @@
-function randomcustomer!(rng::AbstractRNG, k::Int, s::Solution)
+"""
+    remove!([rng::AbstractRNG], k::Int, s::Solution, method::Symbol)
+
+Returns solution removing `k` nodes from solution s using the given `method`.
+
+Available methods include,
+- Random Node Removal       : `:randomnode!`
+- Random Arc Removal        : `:randomarc!`
+- Random Vehicle Removal    : `:randomvehicle!`
+- Related Node Removal      : `:relatednode!`
+- Related Arc Removal       : `:relatedarc!`
+- Related Vehicle Removal   : `:relatedvehicle!`
+- Worst Node Removal        : `:worstnode!`
+- Worst Arc Removal         : `:worstarc!`
+- Worst Vehicle Removal     : `:worstvehicle!`
+
+Optionally specify a random number generator `rng` as the first argument
+(defaults to `Random.GLOBAL_RNG`).
+"""
+remove!(rng::AbstractRNG, k::Int, s::Solution, method::Symbol)::Solution = isdefined(CVRP, method) ? getfield(CVRP, method)(rng, k, s) : getfield(Main, method)(rng, k, s)
+remove!(k::Int, s::Solution, method::Symbol) = remove!(Random.GLOBAL_RNG, k, s, method)
+
+"""
+    randomnode!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after removing exactly `k` nodes 
+selected randomly.
+"""
+function randomnode!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
+    # node indices
+    I = 2:lastindex(G.N)
     # set node weights: uniform
-    W = [isone(i) ? 0 : 1 for i ∈ eachindex(G.N)]
-    # sample node indices
-    I = sample(rng, eachindex(G.N), Weights(W), k, replace=false)
+    W = ones(Int, I)
     # loop: remove exactly k sampled nodes
-    for i ∈ I
+    j = 0
+    while j < k
+        i = sample(rng, I, Weights(W))
         n = G.N[i]
         t = G.N[n.t]
         h = G.N[n.h]
         v = G.V[n.v]
         removenode!(n, t, h, v, s)
+        W[i] = 0
+        j += 1
     end
     # return solution
     return s
 end
 
-function relatedcustomer!(rng::AbstractRNG, k::Int, s::Solution)
+"""
+    relatednode!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after removing exactly `k` nodes 
+selected based on relatedness to a pivot node.
+"""
+function relatednode!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
+    # node indices
+    I = 2:lastindex(G.N)
     # randomize a pivot node
-    p = rand(rng, 2:lastindex(G.N))
+    p = G.N[rand(rng, I)]
     # set node weights: relatedness
-    W = [isone(i) ? 0. : relatedness(G.N[i], G.N[p]) for i ∈ eachindex(G.N)]
-    # sample node indices
-    I = sample(rng, eachindex(G.N), Weights(W), k, replace=false)
-    # loop: remove exactly k sampled nodes
+    W = zeros(Float64, I)
     for i ∈ I
+        n = G.N[i]
+        d = abs(n.x - p.x) + abs(n.y - p.y)
+        W[i] = 1 / (d + 1e-3)
+    end
+    # loop: remove exactly k sampled nodes
+    j = 0
+    while j < k
+        i = sample(rng, I, Weights(W))
         n = G.N[i]
         t = G.N[n.t]
         h = G.N[n.h]
         v = G.V[n.v]
         removenode!(n, t, h, v, s)
+        W[i] = 0.
+        j += 1
     end
     # return solution
     return s
 end
 
-function worstcustomer!(rng::AbstractRNG, k::Int, s::Solution)
+"""
+    worstnode!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after removing exactly `k` nodes 
+selected based on removal cost.
+"""
+function worstnode!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
+    # node indices
+    I = 2:lastindex(G.N)
     # set node weights: cost
-    W = zeros(Float64, length(G.N))
-    z = f(s)
-    for i ∈ eachindex(G.N)
-        if isone(i) continue end
-        n = G.N[i]
-        t = G.N[n.t]
-        h = G.N[n.h]
-        v = G.V[n.v]
-        removenode!(n, t, h, v, s)
-        z′ = f(s)
-        W[i] = z - z′
-        insertnode!(n, t, h, v, s)
-    end
-    # sample node indices
-    I = sample(rng, eachindex(G.N), Weights(W), k, replace=false)
-    # loop: remove exactly k sampled nodes
+    W = zeros(Float64, I)
     for i ∈ I
         n = G.N[i]
         t = G.N[n.t]
         h = G.N[n.h]
+        W[i] = (G.A[t.i, n.i].c + G.A[n.i, h.i].c) - G.A[t.i, h.i].c
+    end
+    # loop: remove exactly k sampled nodes
+    j = 0
+    while j < k
+        i = sample(rng, I, Weights(W))
+        n = G.N[i]
+        t = G.N[n.t]
+        h = G.N[n.h]
         v = G.V[n.v]
         removenode!(n, t, h, v, s)
+        W[i] = 0.
+        j += 1
     end
     # return solution
     return s
 end
 
+"""
+    randomarc!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after removing at least `k` nodes 
+from arcs selected randomly.
+"""
 function randomarc!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
+    # arc indices
+    C = CartesianIndices(G.A)
+    L = LinearIndices(G.A)
     # set arc weights: uniform
-    W = ones(Float64, length(G.A))
+    W = zeros(Int, L)
+    for i ∈ L
+        a = G.A[C[i]]
+        t = G.N[a.t]
+        h = G.N[a.h] 
+        W[i] = isequal(t.h, h.i) ? 1 : 0
+    end
     # loop: until at least k nodes are removed
-    m = 0
-    while m ≤ k
+    j = 0
+    while j < k
         # sample an arc
-        j = sample(rng, CartesianIndices(G.A), Weights(W))
-        a = G.A[j]
+        i = sample(rng, L, Weights(W))
+        a = G.A[C[i]]
+        # remove tail node
         n = G.N[a.t]
-        t = G.N[n.t]
-        h = G.N[n.h]
-        v = G.V[n.v]
-        if iscustomer(n)
+        if iscustomer(n) && isclose(n)
+            t = G.N[n.t]
+            h = G.N[n.h]
+            v = G.V[n.v]
             removenode!(n, t, h, v, s)
-            m += 1
+            j += 1
         end
+        # remove head node
         n = G.N[a.h]
-        t = G.N[n.t]
-        h = G.N[n.h]
-        v = G.V[n.v]
-        if iscustomer(n)
+        if iscustomer(n) && isclose(n)
+            t = G.N[n.t]
+            h = G.N[n.h]
+            v = G.V[n.v]
             removenode!(n, t, h, v, s)
-            m += 1
+            j += 1
         end
         # update arc weight
-        W[j] = 0.
+        W[i] = 0
     end
     # return solution
     return s
 end
 
+"""
+    relatedarc!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after removing at least `k` nodes f
+rom arcs selected based on relatedness to s pivot arc.
+"""
 function relatedarc!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
+    # arc indices
+    C = CartesianIndices(G.A)
+    L = LinearIndices(G.A)
     # randomize a pivot arc
-    p = sample(rng, eachindex(G.A))
+    p = G.A[rand(rng, C)]
     # set arc weights: relatedness
-    W = [relatedness(G.A[i], G.A[p]) for i ∈ eachindex(G.V)]
+    W = zeros(Float64, L)
+    for i ∈ L
+        a = G.A
+        t = G.N[a.t]
+        h = G.N[a.h] 
+        d = abs(a.x - p.x) + abs(a.y - p.y)
+        W[i] = isequal(t.h, h.i) ? (1 / (d + 1e-3)) : 0.
+    end
     # loop: until at least k nodes are removed
-    m = 0
-    # loop: until at least k nodes are removed
-    m = 0
-    while m ≤ k
+    j = 0
+    while j < k
         # sample an arc
-        j = sample(rng, CartesianIndices(G.A), Weights(W))
-        a = G.A[j]
+        i = sample(rng, L, Weights(W))
+        a = G.A[C[i]]
+        # remove tail node
         n = G.N[a.t]
-        t = G.N[n.t]
-        h = G.N[n.h]
-        v = G.V[n.v]
-        if iscustomer(n)
+        if iscustomer(n) && isclose(n)
+            t = G.N[n.t]
+            h = G.N[n.h]
+            v = G.V[n.v]
             removenode!(n, t, h, v, s)
-            m += 1
+            j += 1
         end
+        # remove head node
         n = G.N[a.h]
-        t = G.N[n.t]
-        h = G.N[n.h]
-        v = G.V[n.v]
-        if iscustomer(n)
+        if iscustomer(n) && isclose(n)
+            t = G.N[n.t]
+            h = G.N[n.h]
+            v = G.V[n.v]
             removenode!(n, t, h, v, s)
-            m += 1
+            j += 1
         end
         # update arc weight
-        W[j] = 0.
+        W[i] = 0.
     end
     # return solution
     return s
 end
 
+"""
+    worstarc!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after removing at least `k` nodes 
+from arcs selected based on removal cost.
+"""
 function worstarc!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
+    # arc indices
+    C = CartesianIndices(G.A)
+    L = LinearIndices(G.A)
     # set arc weights: cost
-    W = [a.c for a ∈ G.A]
+    W = zeros(Float64, L)
+    for i ∈ L
+        a = G.A[C[i]]
+        t = G.N[a.t]
+        h = G.N[a.h] 
+        W[i] = isequal(t.h, h.i) ? a.c : 0.
+    end
     # loop: until at least k nodes are removed
-    m = 0
-    while m ≤ k
+    j = 0
+    while j < k
         # sample an arc
-        j = sample(rng, CartesianIndices(G.A), Weights(W))
-        a = G.A[j]
+        i = sample(rng, L, Weights(W))
+        a = G.A[C[i]]
+        # remove tail node
         n = G.N[a.t]
-        t = G.N[n.t]
-        h = G.N[n.h]
-        v = G.V[n.v]
-        if iscustomer(n)
+        if iscustomer(n) && isclose(n)
+            t = G.N[n.t]
+            h = G.N[n.h]
+            v = G.V[n.v]
             removenode!(n, t, h, v, s)
-            m += 1
+            j += 1
         end
+        # remove head node
         n = G.N[a.h]
-        t = G.N[n.t]
-        h = G.N[n.h]
-        v = G.V[n.v]
-        if iscustomer(n)
+        if iscustomer(n) && isclose(n)
+            t = G.N[n.t]
+            h = G.N[n.h]
+            v = G.V[n.v]
             removenode!(n, t, h, v, s)
-            m += 1
+            j += 1
         end
         # update arc weight
-        W[j] = 0.
+        W[i] = 0.
     end
     # return solution
     return s
 end
 
+"""
+    randomvehicle!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after removing at least `k` nodes 
+from vehicles selected randomly.
+"""
 function randomvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
+    # vehicle indices
+    I = eachindex(G.V)
     # set vehicle weights: uniform
-    W = ones(Float64, length(G.V))
+    W = ones(Int, I)
     # loop: until at least k nodes are removed
-    m = 0
-    while m ≤ k
+    j = 0
+    while j < k
         # sample a vehicle
-        j = sample(rng, eachindex(G.V), Weights(W))
-        v = G.V[j]
+        i = sample(rng, I, Weights(W))
+        v = G.V[i]
         # remove all associated nodes
         for _ ∈ 1:v.n
-            i = v.s
-            n = G.N[i]
+            n = G.N[v.s]
             t = G.N[n.t]
             h = G.N[n.h]
             v = G.V[n.v]
             removenode!(n, t, h, v, s)
-            m += 1
+            j += 1
         end
         # update vehicle weight
-        W[j] = 0.
+        W[i] = 0
     end
     # return solution
     return s
 end
 
+"""
+    relatedvehicle!(rng::AbstractRNG, k::Int, s::Solution)
 
+Returns solution `s` after removing at least `k` nodes 
+from vehicles selected based on relatedness to a pivot vehicle.
+"""
 function relatedvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
+    # vehicle indices
+    I = eachindex(G.V)
     # randomize a pivot vehicle
-    p = sample(rng, eachindex(G.V))
+    p = G.V[rand(rng, I)]
     # set vehicle weights: relatedness
-    W = [relatedness(G.V[i], G.V[p]) for i ∈ eachindex(G.V)]
+    W = zeros(Float64, I)
+    for i ∈ I
+        v = G.V[i]
+        d = abs(v.x - p.x) + abs(v.y - p.y)
+        W[i] = 1 / (d + 1e-3)
+    end
     # loop: until at least k nodes are removed
-    m = 0
-    while m ≤ k
+    j = 0
+    while j < k
         # sample a vehicle
-        j = sample(rng, eachindex(G.V), Weights(W))
-        v = G.V[j]
+        i = sample(rng, I, Weights(W))
+        v = G.V[i]
         # remove all associated nodes
         for _ ∈ 1:v.n
-            i = v.s
-            n = G.N[i]
+            n = G.N[v.s]
             t = G.N[n.t]
             h = G.N[n.h]
             v = G.V[n.v]
             removenode!(n, t, h, v, s)
-            m += 1
+            j += 1
         end
         # update vehicle weight
-        W[j] = 0.
+        W[i] = 0.
     end
     # return solution
     return s
 end
 
+"""
+    worstvehicle!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after removing at least `k` nodes 
+from vehicles selected based on utilization.
+"""
 function worstvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
+    # vehicle indices
+    I = eachindex(G.V)
     # set vehicle weights: utilization
-    W = [v.l / v.q for v ∈ G.V]
+    W = zeros(Float64, I)
+    for i ∈ I
+        v = G.V[i]
+        W[i] = 1 - v.l / v.q
+    end
     # loop: until at least k nodes are removed
-    m = 0
-    while m ≤ k
+    j = 0
+    while j < k
         # sample a vehicle
-        j = sample(rng, eachindex(G.V), Weights(W))
-        v = G.V[j]
+        i = sample(rng, I, Weights(W))
+        v = G.V[i]
         # remove all associated nodes
         for _ ∈ 1:v.n
-            i = v.s
-            n = G.N[i]
+            n = G.N[v.s]
             t = G.N[n.t]
             h = G.N[n.h]
             v = G.V[n.v]
             removenode!(n, t, h, v, s)
-            m += 1
+            j += 1
         end
         # update vehicle weight
-        W[j] = 0.
+        W[i] = 0.
     end
     # return solution
     return s
