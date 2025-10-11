@@ -22,15 +22,17 @@ function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
     end
     # create arcs
     A = Matrix{Arc}(undef, n, n)
-    for i ∈ 1:n
-        xᵢ = N[i].x
-        yᵢ = N[i].y 
-        for j ∈ 1:n
-            xⱼ = N[j].x
-            yⱼ = N[j].y 
-            c  = hypot(xⱼ - xᵢ, yⱼ - yᵢ)
-            a  = Arc(i, j, c)
-            A[i,j] = a
+    for t ∈ 1:n
+        xₜ = N[t].x
+        yₜ = N[t].y 
+        qₜ = N[t].q
+        for h ∈ 1:n
+            xₕ = N[h].x
+            yₕ = N[h].y
+            qₕ = N[h].q
+            c  = hypot(xₕ - xₜ, yₕ - yₜ)
+            a  = Arc(t, h, c)
+            A[t,h] = a
         end
     end   
     # fetch vehicles
@@ -73,9 +75,11 @@ function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances
         end
         # iterate through each node pair
         for i ∈ K
-            if isone(i) continue end
+            nᵢ = N[i]
+            if isdepot(nᵢ) continue end
             for j ∈ K
-                if isone(j) continue end
+                nⱼ = N[j]
+                if isdepot(nⱼ) continue end
                 if j ≥ i continue end
                 δ = (A[i,1].c + A[1,j].c) - A[i,j].c
                 C[i,j] = δ
