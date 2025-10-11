@@ -29,9 +29,14 @@ selected randomly.
 function randomnode!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
     # node indices
-    I = 2:lastindex(G.N)
+    I = eachindex(G.N)
     # set node weights: uniform
-    W = ones(Int, I)
+    W = zeros(Int, I)
+    for i ∈ I
+        n = G.N[i]
+        if isdepot(n) continue end
+        W[i] = 1
+    end
     # loop: remove exactly k sampled nodes
     j = 0
     while j < k
@@ -57,13 +62,14 @@ selected based on relatedness to a pivot node.
 function relatednode!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
     # node indices
-    I = 2:lastindex(G.N)
+    I = eachindex(G.N)
     # randomize a pivot node
     p = G.N[rand(rng, I)]
     # set node weights: relatedness
     W = zeros(Float64, I)
     for i ∈ I
         n = G.N[i]
+        if isdepot(n) continue end
         d = abs(n.x - p.x) + abs(n.y - p.y)
         W[i] = 1 / (d + 1e-3)
     end
@@ -92,11 +98,12 @@ selected based on removal cost.
 function worstnode!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
     # node indices
-    I = 2:lastindex(G.N)
+    I = eachindex(G.N)
     # set node weights: cost
     W = zeros(Float64, I)
     for i ∈ I
         n = G.N[i]
+        if isdepot(n) continue end
         t = G.N[n.t]
         h = G.N[n.h]
         W[i] = (G.A[t.i, n.i].c + G.A[n.i, h.i].c) - G.A[t.i, h.i].c
@@ -127,10 +134,10 @@ function randomarc!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
     # arc indices
     C = CartesianIndices(G.A)
-    L = LinearIndices(G.A)
+    I = eachindex(G.A)
     # set arc weights: uniform
-    W = zeros(Int, L)
-    for i ∈ L
+    W = zeros(Int, I)
+    for i ∈ I
         a = G.A[C[i]]
         t = G.N[a.t]
         h = G.N[a.h] 
@@ -140,7 +147,7 @@ function randomarc!(rng::AbstractRNG, k::Int, s::Solution)
     j = 0
     while j < k
         # sample an arc
-        i = sample(rng, L, Weights(W))
+        i = sample(rng, I, Weights(W))
         a = G.A[C[i]]
         # remove tail node
         n = G.N[a.t]
@@ -177,23 +184,23 @@ function relatedarc!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
     # arc indices
     C = CartesianIndices(G.A)
-    L = LinearIndices(G.A)
+    I = eachindex(G.A)
     # randomize a pivot arc
     p = G.A[rand(rng, C)]
     # set arc weights: relatedness
-    W = zeros(Float64, L)
-    for i ∈ L
-        a = G.A
+    W = zeros(Float64, I)
+    for i ∈ I
+        a = G.A[C[i]]
         t = G.N[a.t]
         h = G.N[a.h] 
-        d = abs(a.x - p.x) + abs(a.y - p.y)
+        d = abs((G.N[a.t].x + G.N[a.h].x) - (G.N[p.t].x + G.N[p.h].x)) + abs((G.N[a.t].y + G.N[a.h].y) - (G.N[p.t].y + G.N[p.h].y))
         W[i] = isequal(t.h, h.i) ? (1 / (d + 1e-3)) : 0.
     end
     # loop: until at least k nodes are removed
     j = 0
     while j < k
         # sample an arc
-        i = sample(rng, L, Weights(W))
+        i = sample(rng, I, Weights(W))
         a = G.A[C[i]]
         # remove tail node
         n = G.N[a.t]
@@ -230,10 +237,10 @@ function worstarc!(rng::AbstractRNG, k::Int, s::Solution)
     G = s.G
     # arc indices
     C = CartesianIndices(G.A)
-    L = LinearIndices(G.A)
+    I = eachindex(G.A)
     # set arc weights: cost
-    W = zeros(Float64, L)
-    for i ∈ L
+    W = zeros(Float64, I)
+    for i ∈ I
         a = G.A[C[i]]
         t = G.N[a.t]
         h = G.N[a.h] 
@@ -243,7 +250,7 @@ function worstarc!(rng::AbstractRNG, k::Int, s::Solution)
     j = 0
     while j < k
         # sample an arc
-        i = sample(rng, L, Weights(W))
+        i = sample(rng, I, Weights(W))
         a = G.A[C[i]]
         # remove tail node
         n = G.N[a.t]
