@@ -19,7 +19,7 @@ end
     Arc(t::Int, h::Int, l::Float64)
 
 An `Arc` is a connection between a tail node with index `t` and a head node with 
-index `j`, with a traversal cost `c`.
+index `h`, with a traversal cost `c`.
 """
 struct Arc
     t::Int              # tail node index
