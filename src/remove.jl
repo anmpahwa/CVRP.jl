@@ -79,7 +79,8 @@ function relatednode!(rng::AbstractRNG, k::Int, s::Solution)
         n = N[i]
         if isdepot(n) continue end
         d = A[n.i, p.i].c
-        W[i] = 1 / (d + 1e-3)
+        r = 1 / (d + 1e-3)
+        W[i] = r
     end
     # loop: remove exactly k sampled nodes
     j = 0
@@ -208,19 +209,14 @@ function relatedarc!(rng::AbstractRNG, k::Int, s::Solution)
     # randomize a pivot arc
     p = A[rand(rng, C)]
     # set arc weights: relatedness
-    pₜ = N[p.t]
-    pₕ = N[p.h]
-    xₚ = (pₜ.x + pₕ.x) / 2
-    yₚ = (pₜ.y + pₕ.y) / 2
-    W  = zeros(Float64, I)
+    W = zeros(Float64, I)
     for i ∈ I
-        a  = A[C[i]]
-        aₜ = N[a.t]
-        aₕ = N[a.h]
-        xₐ = (aₜ.x + aₕ.x) / 2
-        yₐ = (aₜ.y + aₕ.y) / 2
-        d  = abs(xₚ - xₐ) + abs(yₚ - yₐ)
-        W[i] = isequal(t.h, h.i) ? (1 / (d + 1e-3)) : 0.
+        a = A[C[i]]
+        t = N[a.t]
+        h = N[a.h]
+        d = abs((N[p.t].x + N[p.h].x) - (N[a.t].x + N[a.h].x)) + abs((N[p.t].y + N[p.h].y) - (N[a.t].y + N[a.h].y))
+        r = 1 / (d + 1e-3)
+        W[i] = isequal(t.h, h.i) ? r : 0.
     end
     # loop: until at least k nodes are removed
     j = 0
@@ -366,7 +362,8 @@ function relatedvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     for i ∈ I
         v = V[i]
         d = abs(v.x - p.x) + abs(v.y - p.y)
-        W[i] = 1 / (d + 1e-3)
+        r = 1 / (d + 1e-3)
+        W[i] = r
     end
     # loop: until at least k nodes are removed
     j = 0
