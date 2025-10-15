@@ -1,8 +1,17 @@
+"""
+    intramove!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after moving a randomly selected node to its best position 
+in the same route, if the move results in a reduction in objective function value, 
+repeating for `k` iterations.    
+"""
 function intramove!(rng::AbstractRNG, k::Int, s::Solution)
-    # initialize
+    # pre-initialize
     G = s.G
     N = G.N
+    A = G.A
     V = G.V
+    # initialize
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
     # iterate
     for _ ∈ 1:k
@@ -11,14 +20,13 @@ function intramove!(rng::AbstractRNG, k::Int, s::Solution)
         # sample a random node
         n = sample(rng, N, Weights(W))
         # remove the node from its current position
-        tₙ= N[n.t]
-        hₙ= N[n.h]
-        vₙ= V[n.v]
-        removenode!(n, tₙ, hₙ, vₙ, s)
+        t = N[n.t]
+        h = N[n.h]
+        v = V[n.v]
+        removenode!(n, t, h, v, s)
         # iterate through all positions in the route
-        v = vₙ
         c = 0.
-        p = (tₙ.i, hₙ.i, vₙ.i)
+        p = (t.i, h.i, v.i)
         t = N[1]
         h = N[v.s]
         for _ ∈ 0:v.n
@@ -44,13 +52,30 @@ function intramove!(rng::AbstractRNG, k::Int, s::Solution)
     return s
 end
 
+"""
+    intermove!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after moving a randomly selected node to its best position 
+in a randomly selected route, if the move results in a reduction in objective 
+function value, repeating for `k` iterations.    
+"""
 function intermove!(rng::AbstractRNG, k::Int, s::Solution)
-    # initialize
+    # pre-initialize
     G = s.G
     N = G.N
+    A = G.A
     V = G.V
+    # initialize
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
-    R = [[isequal(u, v) ? 0. : relatedness(u, v) for u ∈ V] for v ∈ V]
+    R = [zeros(Float64, eachindex(V)) for _ ∈ eachindex(V)]
+    for v ∈ V
+        for u ∈ V
+            if isequal(u,v) continue end
+            d = abs(u.x - v.x) + abs(u.y - v.y)
+            r = 1 / (d + 1e-3)
+            R[u.i][v.i] = r
+        end
+    end
     # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
@@ -58,14 +83,14 @@ function intermove!(rng::AbstractRNG, k::Int, s::Solution)
         # sample a random node
         n = sample(rng, N, Weights(W))
         # remove the node from its current position
-        tₙ= N[n.t]
-        hₙ= N[n.h]
-        vₙ= V[n.v]
-        removenode!(n, tₙ, hₙ, vₙ, s)
+        t = N[n.t]
+        h = N[n.h]
+        v = V[n.v]
+        removenode!(n, t, h, v, s)
         # sample a random vehicle and iterate through all positions in it
-        v = sample(rng, V, Weights(R[vₙ.i]))
         c = 0.
-        p = (tₙ.i, hₙ.i, vₙ.i)
+        p = (t.i, h.i, v.i)
+        v = sample(rng, V, Weights(R[v.i]))
         t = N[1]
         h = N[v.s]
         for _ ∈ 0:v.n
@@ -91,14 +116,32 @@ function intermove!(rng::AbstractRNG, k::Int, s::Solution)
     return s
 end
 
+"""
+    intraswap!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after swapping two randomly selected nodes from 
+the same route if the swap results in a reduction in objective function 
+value, repeating for `k` iterations.
+"""
 function intraswap!(rng::AbstractRNG, k::Int, s::Solution)
     # tₘ → m → hₘ and tₙ → n → hₙ
-    # initialize
+    # pre-initialize
     G = s.G
     N = G.N
+    A = G.A
     V = G.V
+    # initialize
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
-    R = [[(isequal(n, m) || !isequal(n.v, m.v)) ? 0. : relatedness(n, m) for m ∈ N] for n ∈ N]
+    R = [zeros(Float64, eachindex(N)) for _ ∈ eachindex(N)]
+    for n ∈ N
+        for m ∈ N
+            if isequal(n, m) continue end
+            if !isequal(n.v, m.v) continue end
+            d = A[n.i,m.i].c        
+            r = (W[n.i] * W[m.i]) / (d + 1e-3)
+            R[m.i][n.i] = r
+        end
+    end
     # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
@@ -162,14 +205,32 @@ function intraswap!(rng::AbstractRNG, k::Int, s::Solution)
     return s
 end
 
+"""
+    interswap!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after swapping two randomly selected nodes from 
+two different routes if the swap results in a reduction in objective 
+function value, repeating for `k` iterations.
+"""
 function interswap!(rng::AbstractRNG, k::Int, s::Solution)
     # tₘ → m → hₘ and tₙ → n → hₙ
-    # initialize
+    # pre-initialize
     G = s.G
     N = G.N
+    A = G.A
     V = G.V
-    W = [isone(i) ? 0 : 1 for i ∈ eachindex(G.N)]
-    R = [[(isequal(n, m) || isequal(n.v, m.v)) ? 0 : relatedness(n, m) for m ∈ N] for n ∈ N]
+    # initialize
+    W = [isdepot(n) ? 0 : 1 for n ∈ N]
+    R = [zeros(Float64, eachindex(N)) for _ ∈ eachindex(N)]
+    for n ∈ N
+        for m ∈ N
+            if isequal(n, m) continue end
+            if isequal(n.v, m.v) continue end
+            d = A[n.i,m.i].c        
+            r = (W[n.i] * W[m.i]) / (d + 1e-3)
+            R[m.i][n.i] = r
+        end
+    end
     # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
