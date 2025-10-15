@@ -27,11 +27,13 @@ In each iteration, the algorithm selects a random open node and places it at its
 position in the solution according to the specified mode (`:precise` or `:perturb`).
 """
 function best!(rng::AbstractRNG, s::Solution; mode::Symbol)
-    # initialize
-    φ = isequal(mode, :perturb)
+    # pre-initialize
     G = s.G
     N = G.N
+    A = G.A
     V = G.V
+    # initialize
+    φ = isequal(mode, :perturb)
     L = [n for n ∈ N if iscustomer(n) && isopen(n)] # set of open nodes
     I = eachindex(L)
     J = eachindex(V)
@@ -102,11 +104,13 @@ and places it at its best position in the solution according to the specified mo
 (`:precise` or `:perturb`).
 """
 function greedy!(rng::AbstractRNG, s::Solution; mode::Symbol)
-    # initialize
-    φ = isequal(mode, :perturb)
+    # pre-initialize
     G = s.G
     N = G.N
-    V = G.V 
+    A = G.A
+    V = G.V
+    # initialize
+    φ = isequal(mode, :perturb)
     L = [n for n ∈ N if iscustomer(n) && isopen(n)] # set of open nodes
     I = eachindex(L)
     J = eachindex(V)
@@ -183,11 +187,13 @@ and places it at its best position in the solution according to the specified mo
 between the best insertion cost and the k-th best insertion cost.
 """
 function regretk!(rng::AbstractRNG, s::Solution, k::Int, mode::Symbol)
-    # initialize
-    φ = isequal(mode, :perturb)
+    # pre-initialize
     G = s.G
     N = G.N
-    V = G.V 
+    A = G.A
+    V = G.V
+    # initialize
+    φ = isequal(mode, :perturb)
     L = [n for n ∈ N if iscustomer(n) && isopen(n)] # set of open nodes
     I = eachindex(L)
     J = eachindex(V)
