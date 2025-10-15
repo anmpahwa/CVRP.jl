@@ -33,6 +33,13 @@ and to service status for a customer node.
 @inline isclose(n::Node) = !isopen(n)
 
 """
+    isequal(n::Node, m::Node)
+
+Returns 'true' if node `n` and `m` have the same index.
+"""
+@inline Base.isequal(n::Node, m::Node) = isequal(n.i, m.i)
+
+"""
     isopt(v::Vehicle)
 
 Returns `false` is vehicle `v` serves zero customers, else returns `true`.
@@ -40,6 +47,13 @@ Returns `false` is vehicle `v` serves zero customers, else returns `true`.
 Operational refers to utilization status.
 """
 @inline isopt(v::Vehicle) = !iszero(v.n)
+
+"""
+    isequal(u::Vehicle, v::Vehicle)
+
+Returns 'true' if vehicle `u` and `v` have the same index.
+"""
+@inline Base.isequal(u::Vehicle, v::Vehicle) = isequal(u.i, v.i)
 
 """
     vectorize(s::Solution)
