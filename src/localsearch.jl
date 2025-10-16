@@ -161,7 +161,14 @@ function value, repeating for `k` iterations.
 """
 interswap!(rng::AbstractRNG, k::Int, s::Solution) = swap!(rng, k, s; scope=:inter)
 
-# TODO
+"""
+    intraopt!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after iteratively taking 2 arcs from the same route 
+and reconfiguring them (total possible reconfigurations 2₂-1 = 3) if the 
+reconfiguration results in a reduction in objective function value, repeating 
+for `k` iterations.
+"""
 function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
     # pre-initialize
     G = s.G
@@ -169,7 +176,7 @@ function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
     V = G.V
     # initialize
     Wₙ = [isdepot(n) ? 0 : 1 for n ∈ N]
-    Wₘ = [[isequal(n.v, m.v) ? 1 : 0 for m ∈ N] for n ∈ N]
+    Wₘ = [[isequal(n.v, m.v) ? (isequal(n, m) ? 0 : 1) : 0 for m ∈ N] for n ∈ N]
     # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
@@ -177,15 +184,20 @@ function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
         # sample nodes
         n = sample(rng, N, Weights(Wₙ))
         m = sample(rng, N, Weights(Wₘ[n.i]))
-        println(n)
-        println(m)
+        # order correction
+        p = N[n.t]
+        while !isdepot(p)
+            if isequal(p, m)
+                m = n
+                n = p
+                break
+            end
+            p = N[p.t]
+        end
         # skip invalid configurations
         if isdepot(n) continue end
         if isdepot(m) continue end
-        if isone(n.h) continue end
-        if isone(m.t) continue end
-        if isequal(n.h, m.i) continue end
-        if isequal(n.i, m.t) continue end
+        if isequal(n, m) continue end
         if !isequal(n.v, m.v) continue end
         # perform operations
         # fetch vehicle
@@ -200,26 +212,16 @@ function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
         hₒ = N[p.h]
         # move nodes
         b = N[n.h]
-        φ = CVRP.iscustomer(tₒ) ? :forward : :reverse
-        while true
-            CVRP.removenode!(p, tₒ, hₒ, vₒ, s)
-            CVRP.insertnode!(p, tₙ, hₙ, vₒ, s)
-            tₙ = CVRP.iscustomer(tₒ) ? N[p.i] : N[1]
-            hₙ = CVRP.iscustomer(tₒ) ? N[p.h] : N[vₒ.s]
-            p  = CVRP.iscustomer(tₒ) ? N[tₒ.i] : N[vₒ.e]
+        while !isequal(p.i, b.i)
+            removenode!(p, tₒ, hₒ, vₒ, s)
+            insertnode!(p, tₙ, hₙ, vₒ, s)
+            tₙ = N[p.i]
+            hₙ = N[p.h]
+            p  = N[tₒ.i]
             tₒ = N[p.t]
             hₒ = N[p.h]
-            φ  = CVRP.iscustomer(tₒ) ? φ : :reverse
-            if isequal(p.i, b.i)
-                m = hₒ
-                if isequal(φ, :reverse)
-                    CVRP.removenode!(p, tₒ, hₒ, vₒ, s)
-                    CVRP.insertnode!(p, tₙ, hₙ, vₒ, s)
-                    m = p
-                end
-                break
-            end
         end
+        m = p
         # evaluate the change in objective function value
         z′ = f(s)
         c  = z′ - z
@@ -235,31 +237,29 @@ function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
         hₒ = N[p.h]
         # move nodes
         b = N[n.h]
-        φ = CVRP.iscustomer(tₒ) ? :forward : :reverse
-        while true
-            CVRP.removenode!(p, tₒ, hₒ, vₒ, s)
-            CVRP.insertnode!(p, tₙ, hₙ, vₒ, s)
-            tₙ = CVRP.iscustomer(tₒ) ? N[p.i] : N[1]
-            hₙ = CVRP.iscustomer(tₒ) ? N[p.h] : N[vₒ.s]
-            p  = CVRP.iscustomer(tₒ) ? N[tₒ.i] : N[vₒ.e]
+        while !isequal(p.i, b.i)
+            removenode!(p, tₒ, hₒ, vₒ, s)
+            insertnode!(p, tₙ, hₙ, vₒ, s)
+            tₙ = N[p.i]
+            hₙ = N[p.h]
+            p  = N[tₒ.i]
             tₒ = N[p.t]
             hₒ = N[p.h]
-            φ  = CVRP.iscustomer(tₒ) ? φ : :reverse
-            if isequal(p.i, b.i)
-                m = hₒ
-                if isequal(φ, :reverse)
-                    CVRP.removenode!(p, tₒ, hₒ, vₒ, s)
-                    CVRP.insertnode!(p, tₙ, hₙ, vₒ, s)
-                    m = p
-                end
-                break
-            end
         end
+        m = p
     end
     # return solution
     return s
 end
 
+"""
+    interopt!(rng::AbstractRNG, k::Int, s::Solution)
+
+Returns solution `s` after iteratively taking 2 arcs from different routes 
+and reconfiguring them (total possible reconfigurations 2₂-1 = 3) if the 
+reconfiguration results in a reduction in objective function value, repeating 
+for `k` iterations.
+"""
 function interopt!(rng::AbstractRNG, k::Int, s::Solution)
     # pre-initialize
     G = s.G
