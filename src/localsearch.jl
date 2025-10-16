@@ -9,7 +9,6 @@ function intramove!(rng::AbstractRNG, k::Int, s::Solution)
     # pre-initialize
     G = s.G
     N = G.N
-    A = G.A
     V = G.V
     # initialize
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
@@ -63,7 +62,6 @@ function intermove!(rng::AbstractRNG, k::Int, s::Solution)
     # pre-initialize
     G = s.G
     N = G.N
-    A = G.A
     V = G.V
     # initialize
     W = [isdepot(n) ? 0 : 1 for n ∈ N]
