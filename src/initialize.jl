@@ -25,11 +25,9 @@ function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
     for t ∈ 1:n
         xₜ = N[t].x
         yₜ = N[t].y 
-        qₜ = N[t].q
         for h ∈ 1:n
             xₕ = N[h].x
             yₕ = N[h].y
-            qₕ = N[h].q
             c  = hypot(xₕ - xₜ, yₕ - yₜ)
             a  = Arc(t, h, c)
             A[t,h] = a
