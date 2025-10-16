@@ -119,13 +119,15 @@ function intraswap!(rng::AbstractRNG, k::Int, s::Solution)
     N = G.N
     V = G.V
     # initialize
-    W = [isdepot(n) ? 0 : 1 for n ∈ N]
+    Wₙ = [isdepot(n) ? 0 : 1 for n ∈ N]
+    Wₘ = [[isequal(n.v, m.v) ? 1 : 0 for m ∈ N] for n ∈ N]
     # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
         z = f(s)
         # sample nodes
-        n, m = sample(rng, N, Weights(W), 2, replace=false)
+        n = sample(rng, N, Weights(Wₙ))
+        m = sample(rng, N, Weights(Wₘ[n.i]))
         # skip invalid configurations
         if !isequal(n.v, m.v) continue end
         # swap the two nodes
@@ -196,13 +198,15 @@ function interswap!(rng::AbstractRNG, k::Int, s::Solution)
     A = G.A
     V = G.V
     # initialize
-    W = [isdepot(n) ? 0 : 1 for n ∈ N]
+    Wₙ = [isdepot(n) ? 0 : 1 for n ∈ N]
+    Wₘ = [[isequal(n.v, m.v) ? 0 : 1 for m ∈ N] for n ∈ N]
     # iterate
     for _ ∈ 1:k
         # compute cost of the current solution
         z = f(s)
         # sample nodes
-        n, m = sample(rng, N, Weights(W), 2, replace=false)
+        n = sample(rng, N, Weights(Wₙ))
+        m = sample(rng, N, Weights(Wₘ[n.i]))
         # skip invalid configurations
         if isequal(n.v, m.v) continue end
         # swap the two nodes
@@ -252,6 +256,175 @@ function interswap!(rng::AbstractRNG, k::Int, s::Solution)
             removenode!(m, tₘ, hₘ, vₘ, s)
             insertnode!(n, tₘ, hₘ, vₘ, s)
             insertnode!(m, tₙ, hₙ, vₙ, s)
+        end
+    end
+    # return solution
+    return s
+end
+
+# TODO
+function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
+    # pre-initialize
+    G = s.G
+    N = G.N
+    V = G.V
+    # initialize
+    Wₙ = [isdepot(n) ? 0 : 1 for n ∈ N]
+    Wₘ = [[isequal(n.v, m.v) ? 1 : 0 for m ∈ N] for n ∈ N]
+    # iterate
+    for _ ∈ 1:k
+        # compute cost of the current solution
+        z = f(s)
+        # sample nodes
+        n = sample(rng, N, Weights(Wₙ))
+        m = sample(rng, N, Weights(Wₘ[n.i]))
+        # skip invalid configurations
+        if !isequal(n.v, m.v) continue end
+        # perform operations
+        vₒ = V[n.v]
+        #
+        tₒ = N[n.i]
+        hₒ = N[n.h]
+        #
+        p  = m
+        #
+        tₚ = N[p.t]
+        hₚ = N[p.h]
+        while !isequal(p, hₒ)
+            removenode!(p, tₚ, hₚ, vₒ, s)
+            insertnode!(p, tₒ, hₒ, vₒ, s)
+            tₒ = iscustomer(tₚ) ? N[p.i] : N[1]
+            hₒ = iscustomer(tₚ) ? N[p.h] : N[vₒ.s]
+            p  = iscustomer(tₚ) ? tₚ : N[vₒ.e]
+            tₚ = N[p.t]
+            hₚ = N[p.h]
+        end
+        m = hₒ
+        # evaluate the change in objective function value
+        z′ = f(s)
+        c  = z′ - z
+        if c < 0 continue end
+        # reperform operations
+        vₒ = V[n.v]
+        #
+        tₒ = N[n.i]
+        hₒ = N[n.h]
+        #
+        p  = m
+        #
+        tₚ = N[p.t]
+        hₚ = N[p.h]
+        while !isequal(p, hₒ)
+            removenode!(p, tₚ, hₚ, vₒ, s)
+            insertnode!(p, tₒ, hₒ, vₒ, s)
+            tₒ = iscustomer(tₚ) ? N[p.i] : N[1]
+            hₒ = iscustomer(tₚ) ? N[p.h] : N[vₒ.s]
+            p  = iscustomer(tₚ) ? tₚ : N[vₒ.e]
+            tₚ = N[p.t]
+            hₚ = N[p.h]
+        end
+    end
+    # return solution
+    return s
+end
+
+function interopt!(rng::AbstractRNG, k::Int, s::Solution)
+    # pre-initialize
+    G = s.G
+    N = G.N
+    V = G.V
+    # initialize
+    Wₙ = [isdepot(n) ? 0 : 1 for n ∈ N]
+    Wₘ = [[isequal(n.v, m.v) ? 0 : 1 for m ∈ N] for n ∈ N]
+    # iterate
+    for _ ∈ 1:k
+        # compute cost of the current solution
+        z = f(s)
+        # sample nodes
+        n = sample(rng, N, Weights(Wₙ))
+        m = sample(rng, N, Weights(Wₘ[n.i]))
+        # skip invalid configurations
+        if isequal(n.v, m.v) continue end
+        # perform operations
+        vₙ = V[n.v]
+        vₘ = V[m.v]
+        # tail and head nodes of vehicle n
+        tₙ = N[n.i]
+        hₙ = N[n.h]
+        # pivot node
+        p  = N[m.i]
+        # tail and head nodes of vehicle m
+        tₘ = N[p.t]
+        hₘ = N[p.h]
+        # move nodes from vehicle m to n
+        while !isdepot(p)
+            removenode!(p, tₘ, hₘ, vₘ, s)
+            insertnode!(p, tₙ, hₙ, vₙ, s)
+            tₙ = p
+            hₙ = N[tₙ.h]
+            p  = hₘ
+            tₘ = N[p.t]
+            hₘ = N[p.h]
+        end
+        m = hₙ
+        # tail and head nodes in route of vehicle m
+        tₘ = N[vₘ.e]
+        hₘ = N[1]
+        # pivot node
+        p  = hₙ
+        # tail and head nodes in route of vehicle n
+        tₙ = N[p.t]
+        hₙ = N[p.h]
+        # move nodes from vehicle n to m
+        while !isdepot(p)
+            removenode!(p, tₙ, hₙ, vₙ, s)
+            insertnode!(p, tₘ, hₘ, vₘ, s)
+            tₘ = p
+            hₘ = N[tₘ.h]
+            p  = hₙ
+            tₙ = N[p.t]
+            hₙ = N[p.h]
+        end
+        # evaluate the change in objective function value
+        z′ = f(s)
+        c  = z′ - z
+        if c < 0 continue end
+        # reperform operations
+        # tail and head nodes of vehicle n
+        tₙ = N[n.i]
+        hₙ = N[n.h]
+        # pivot node
+        p  = N[m.i]
+        # tail and head nodes of vehicle m
+        tₘ = N[p.t]
+        hₘ = N[p.h]
+        # move nodes from vehicle m to n
+        while !isdepot(p)
+            removenode!(p, tₘ, hₘ, vₘ, s)
+            insertnode!(p, tₙ, hₙ, vₙ, s)
+            tₙ = p
+            hₙ = N[tₙ.h]
+            p  = hₘ
+            tₘ = N[p.t]
+            hₘ = N[p.h]
+        end
+        # tail and head nodes in route of vehicle m
+        tₘ = N[vₘ.e]
+        hₘ = N[1]
+        # pivot node
+        p  = hₙ
+        # tail and head nodes in route of vehicle n
+        tₙ = N[p.t]
+        hₙ = N[p.h]
+        # move nodes from vehicle n to m
+        while !isdepot(p)
+            removenode!(p, tₙ, hₙ, vₙ, s)
+            insertnode!(p, tₘ, hₘ, vₘ, s)
+            tₘ = p
+            hₘ = N[tₘ.h]
+            p  = hₙ
+            tₙ = N[p.t]
+            hₙ = N[p.h]
         end
     end
     # return solution
