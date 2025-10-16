@@ -214,7 +214,9 @@ function relatedarc!(rng::AbstractRNG, k::Int, s::Solution)
         a = A[C[i]]
         t = N[a.t]
         h = N[a.h]
-        d = abs((N[p.t].x + N[p.h].x) - (N[a.t].x + N[a.h].x)) + abs((N[p.t].y + N[p.h].y) - (N[a.t].y + N[a.h].y))
+        x = abs((N[p.t].x + N[p.h].x) - (N[a.t].x + N[a.h].x))
+        y = abs((N[p.t].y + N[p.h].y) - (N[a.t].y + N[a.h].y))
+        d = x + y
         r = 1 / (d + 1e-3)
         W[i] = isequal(t.h, h.i) ? r : 0.
     end
@@ -361,7 +363,9 @@ function relatedvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     W = zeros(Float64, I)
     for i ∈ I
         v = V[i]
-        d = abs(v.x - p.x) + abs(v.y - p.y)
+        x = abs(v.x - p.x)
+        y = abs(v.y - p.y)
+        d = x + y
         r = 1 / (d + 1e-3)
         W[i] = r
     end
