@@ -71,7 +71,9 @@ function intermove!(rng::AbstractRNG, k::Int, s::Solution)
     for v ∈ V
         for u ∈ V
             if isequal(u,v) continue end
-            d = abs(u.x - v.x) + abs(u.y - v.y)
+            x = abs(u.x - v.x)
+            y = abs(u.y - v.y)
+            d = x + y
             r = 1 / (d + 1e-3)
             R[u.i][v.i] = r
         end
@@ -138,7 +140,8 @@ function intraswap!(rng::AbstractRNG, k::Int, s::Solution)
             if isequal(n, m) continue end
             if !isequal(n.v, m.v) continue end
             d = A[n.i,m.i].c        
-            r = (W[n.i] * W[m.i]) / (d + 1e-3)
+            w = W[n.i] * W[m.i]
+            r = w / (d + 1e-3)
             R[m.i][n.i] = r
         end
     end
@@ -227,7 +230,8 @@ function interswap!(rng::AbstractRNG, k::Int, s::Solution)
             if isequal(n, m) continue end
             if isequal(n.v, m.v) continue end
             d = A[n.i,m.i].c        
-            r = (W[n.i] * W[m.i]) / (d + 1e-3)
+            w = W[n.i] * W[m.i]
+            r = w / (d + 1e-3)
             R[m.i][n.i] = r
         end
     end
