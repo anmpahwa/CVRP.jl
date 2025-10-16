@@ -30,7 +30,6 @@ function randomnode!(rng::AbstractRNG, k::Int, s::Solution)
     # pre-initialize
     G = s.G
     N = G.N
-    A = G.A
     V = G.V
     # node indices
     I = eachindex(N)
@@ -315,7 +314,6 @@ function randomvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     # pre-initialize
     G = s.G
     N = G.N
-    A = G.A
     V = G.V
     # vehicle indices
     I = eachindex(V)
@@ -353,7 +351,6 @@ function relatedvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     # pre-initialize
     G = s.G
     N = G.N
-    A = G.A
     V = G.V
     # vehicle indices
     I = eachindex(V)
@@ -401,7 +398,6 @@ function worstvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     # initialiaze
     G = s.G
     N = G.N
-    A = G.A
     V = G.V
     # vehicle indices
     I = eachindex(V)

@@ -7,11 +7,12 @@ Updates predecessor and sucessor node state, vehicle status, and solution cost a
 function removenode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     # fetch features
     G = s.G
+    A = G.A
     x = v.x * v.n
     y = v.y * v.n
-    aₜₙ = G.A[t.i, n.i]
-    aₙₕ = G.A[n.i, h.i]
-    aₜₕ = G.A[t.i, h.i]
+    aₜₙ = A[t.i, n.i]
+    aₙₕ = A[n.i, h.i]
+    aₜₕ = A[t.i, h.i]
     # remove penalty
     s.p -= (v.l > v.q) ? (v.l - v.q) : 0
     # update node
@@ -45,11 +46,12 @@ Updates predecessor and sucessor node state, vehicle status, and solution cost a
 function insertnode!(n::Node, t::Node, h::Node, v::Vehicle, s::Solution)
     # fetch features
     G = s.G
+    A = G.A
     x = v.x * v.n
     y = v.y * v.n
-    aₜₙ = G.A[t.i, n.i]
-    aₙₕ = G.A[n.i, h.i]
-    aₜₕ = G.A[t.i, h.i]
+    aₜₙ = A[t.i, n.i]
+    aₙₕ = A[n.i, h.i]
+    aₜₕ = A[t.i, h.i]
     # remove penalty
     s.p -= (v.l > v.q) ? (v.l - v.q) : 0
     # update node

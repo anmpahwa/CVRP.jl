@@ -30,7 +30,6 @@ function best!(rng::AbstractRNG, s::Solution; mode::Symbol)
     # pre-initialize
     G = s.G
     N = G.N
-    A = G.A
     V = G.V
     # initialize
     φ = isequal(mode, :perturb)
@@ -107,7 +106,6 @@ function greedy!(rng::AbstractRNG, s::Solution; mode::Symbol)
     # pre-initialize
     G = s.G
     N = G.N
-    A = G.A
     V = G.V
     # initialize
     φ = isequal(mode, :perturb)
@@ -190,7 +188,6 @@ function regretk!(rng::AbstractRNG, s::Solution, k::Int, mode::Symbol)
     # pre-initialize
     G = s.G
     N = G.N
-    A = G.A
     V = G.V
     # initialize
     φ = isequal(mode, :perturb)
