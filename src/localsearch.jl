@@ -178,25 +178,39 @@ function intraopt!(rng::AbstractRNG, k::Int, s::Solution)
         n = sample(rng, N, Weights(Wₙ))
         m = sample(rng, N, Weights(Wₘ[n.i]))
         # skip invalid configurations
+        if isdepot(n) continue end
+        if isdepot(m) continue end
         if !isequal(n.v, m.v) continue end
         # perform operations
+        # fetch vehicle
         vₒ = V[n.v]
-        #
-        tₒ = N[n.i]
-        hₒ = N[n.h]
-        #
-        p  = m
-        #
-        tₚ = N[p.t]
-        hₚ = N[p.h]
-        while !isequal(p, hₒ)
-            removenode!(p, tₚ, hₚ, vₒ, s)
-            insertnode!(p, tₒ, hₒ, vₒ, s)
-            tₒ = iscustomer(tₚ) ? N[p.i] : N[1]
-            hₒ = iscustomer(tₚ) ? N[p.h] : N[vₒ.s]
-            p  = iscustomer(tₚ) ? tₚ : N[vₒ.e]
-            tₚ = N[p.t]
-            hₚ = N[p.h]
+        # set pivot node
+        p  = N[m.i]
+        # fetch tail and head node of new position
+        tₙ = N[n.i]
+        hₙ = N[n.h]
+        # fetch tail and head node of original position
+        tₒ = N[p.t]
+        hₒ = N[p.h]
+        # move nodes
+        b = N[n.h]
+        φ = :forward
+        while true
+            removenode!(p, tₒ, hₒ, vₒ, s)
+            insertnode!(p, tₙ, hₙ, vₒ, s)
+            tₙ = iscustomer(tₒ) ? N[p.i] : N[1]
+            hₙ = iscustomer(tₒ) ? N[p.h] : N[vₒ.s]
+            p  = iscustomer(tₒ) ? N[tₒ.i] : N[vₒ.e]
+            tₒ = N[p.t]
+            hₒ = N[p.h]
+            φ  = iscustomer(tₒ) ? φ : :reverse
+            if isequal(p.i, b.i)
+                if isequal(φ, :reverse)
+                    removenode!(p, tₒ, hₒ, vₒ, s)
+                    insertnode!(p, tₙ, hₙ, vₒ, s)
+                end
+                break
+            end
         end
         m = hₒ
         # evaluate the change in objective function value
@@ -243,22 +257,26 @@ function interopt!(rng::AbstractRNG, k::Int, s::Solution)
         n = sample(rng, N, Weights(Wₙ))
         m = sample(rng, N, Weights(Wₘ[n.i]))
         # skip invalid configurations
+        if isdepot(n) continue end
+        if isdepot(m) continue end
         if isequal(n.v, m.v) continue end
         # perform operations
+        # fetch vehicles
         vₙ = V[n.v]
         vₘ = V[m.v]
-        # tail and head nodes of vehicle n
+        # fetch tail and head nodes in vehicle n
         tₙ = N[n.i]
         hₙ = N[n.h]
-        # pivot node
+        # set pivot node
         p  = N[m.i]
-        # tail and head nodes of vehicle m
+        # fetch tail and head nodes in vehicle m
         tₘ = N[p.t]
         hₘ = N[p.h]
         # move nodes from vehicle m to n
         while !isdepot(p)
             removenode!(p, tₘ, hₘ, vₘ, s)
             insertnode!(p, tₙ, hₙ, vₙ, s)
+            # update nodes
             tₙ = p
             hₙ = N[tₙ.h]
             p  = hₘ
@@ -266,18 +284,19 @@ function interopt!(rng::AbstractRNG, k::Int, s::Solution)
             hₘ = N[p.h]
         end
         m = hₙ
-        # tail and head nodes in route of vehicle m
+        # fetch tail and head nodes in vehicle m
         tₘ = N[vₘ.e]
         hₘ = N[1]
-        # pivot node
+        # set pivot node
         p  = hₙ
-        # tail and head nodes in route of vehicle n
+        # fetch tail and head nodes in vehicle n
         tₙ = N[p.t]
         hₙ = N[p.h]
         # move nodes from vehicle n to m
         while !isdepot(p)
             removenode!(p, tₙ, hₙ, vₙ, s)
             insertnode!(p, tₘ, hₘ, vₘ, s)
+            # update nodes
             tₘ = p
             hₘ = N[tₘ.h]
             p  = hₙ
