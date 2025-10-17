@@ -184,7 +184,7 @@ and places it at its best position in the solution according to the specified mo
 (`:precise` or `:perturb`). The regret cost is calculated based on the difference 
 between the best insertion cost and the k-th best insertion cost.
 """
-function regretk!(rng::AbstractRNG, s::Solution, k::Int, mode::Symbol)
+function regretk!(rng::AbstractRNG, s::Solution; k::Int, mode::Symbol)
     # pre-initialize
     G = s.G
     N = G.N
