@@ -14,6 +14,7 @@ Optionally specify a random number generator `rng` as the first argument
 """
 function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
     # Step 0: Pre-initialize
+    G = sₒ.G
     j, k = χ.j, χ.k
     n, m = χ.n, χ.m
     Ψᵣ, Ψᵢ, Ψₗ = χ.Ψᵣ, χ.Ψᵢ, χ.Ψₗ
@@ -77,7 +78,7 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
             elseif z′ < z
                 s = s′
                 z = z′
-                if h′ ∉ X
+                if x′ ∉ X
                     Πᵣ[r] += σ₂
                     Πᵢ[i] += σ₂
                 end
@@ -87,7 +88,7 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
                 if η < exp(-(z′ - z)/t)
                     s = s′
                     z = z′
-                    if h′ ∉ X
+                    if x′ ∉ X
                         Πᵣ[r] += σ₃
                         Πᵢ[i] += σ₃
                     end
