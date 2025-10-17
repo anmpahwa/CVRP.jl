@@ -54,7 +54,7 @@ dynamic version, relevant savings are recomputed after every merge.
 function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances"), method=:static)
     # pre-initialize
     G = build(instance; dir=dir)
-    s = Solution(G)
+    s = Solution(G, 0., 0.)
     G = s.G
     N = G.N
     A = G.A

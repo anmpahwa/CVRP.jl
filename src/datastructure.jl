@@ -66,5 +66,4 @@ mutable struct Solution
     G::Graph            # graph
     c::Float64          # cost
     p::Float64          # penalty
-    Solution(G) = new(G, 0., 0.)
 end
