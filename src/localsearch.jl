@@ -1,20 +1,20 @@
 """
-    localsearch!([rng::AbstractRNG], k::Int, s::Solution, method::Symbol)
+    localsearch!([rng::AbstractRNG], k::Int, s::Solution, method::Function)
 
 Returns solution `s` after performing local seach on the solution using given `method` for `k` iterations.
 
 Available methods include,
-- intra-move    : `:intramove!`
-- inter-move    : `:intermove!`
-- intra-swap    : `:intraswap!`
-- inter-swap    : `:interswap!`
-- intra-opt     : `:intraopt!`
-- inter-opt     : `:interopt!`
+- intra-move    : `intramove!`
+- inter-move    : `intermove!`
+- intra-swap    : `intraswap!`
+- inter-swap    : `interswap!`
+- intra-opt     : `intraopt!`
+- inter-opt     : `interopt!`
 
 Optionally specify a random number generator `rng` as the first argument (defaults to `Random.GLOBAL_RNG`).
 """
-localsearch!(rng::AbstractRNG, k::Int, s::Solution, method::Symbol)::Solution = isdefined(CVRP, method) ? getfield(CVRP, method)(rng, k, s) : getfield(Main, method)(rng, k, s)
-localsearch!(k::Int, s::Solution, method::Symbol) = localsearch!(Random.GLOBAL_RNG, k, s, method)
+localsearch!(rng::AbstractRNG, k::Int, s::Solution, method::Function)::Solution = method(rng, k, s)
+localsearch!(k::Int, s::Solution, method::Function) = localsearch!(Random.GLOBAL_RNG, k, s, method)
 
 """
     move!(rng::AbstractRNG, k::Int, s::Solution; scope::Symbol)

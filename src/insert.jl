@@ -1,23 +1,23 @@
 """
-    insert!([rng::AbstractRNG], s::Solution, method::Symbol)
+    insert!([rng::AbstractRNG], s::Solution, method::Function)
 
 Returns solution `s` after inserting open customer nodes to the solution using the given `method`.
 
 Available methods include,
-- Best Precise Insertion   : `:bestprecise!`
-- Best Perturb Insertion   : `:bestperturb!`
-- Greedy Precise Insertion : `:greedyprecise!`
-- Greedy Perturb Insertion : `:greedyperturb!`
-- Regret₂ Precise Insertion: `:regret2precise!`
-- Regret₂ Perturb Insertion: `:regret2perturb!`
-- Regret₃ Precise Insertion: `:regret3precise!`
-- Regret₃ Perturb Insertion: `:regret3perturb!`
+- Best Precise Insertion   : `bestprecise!`
+- Best Perturb Insertion   : `bestperturb!`
+- Greedy Precise Insertion : `greedyprecise!`
+- Greedy Perturb Insertion : `greedyperturb!`
+- Regret₂ Precise Insertion: `regret2precise!`
+- Regret₂ Perturb Insertion: `regret2perturb!`
+- Regret₃ Precise Insertion: `regret3precise!`
+- Regret₃ Perturb Insertion: `regret3perturb!`
 
 Optionally specify a random number generator `rng` as the first argument
 (defaults to `Random.GLOBAL_RNG`).
 """
-insert!(rng::AbstractRNG, s::Solution, method::Symbol)::Solution = isdefined(CVRP, method) ? getfield(VRP, method)(rng, s) : getfield(Main, method)(rng, s)
-insert!(s::Solution, method::Symbol) = insert!(Random.GLOBAL_RNG, s, method)
+insert!(rng::AbstractRNG, s::Solution, method::Function)::Solution = method(rng, s)
+insert!(s::Solution, method::Function) = insert!(Random.GLOBAL_RNG, s, method)
 
 """
     best!(rng::AbstractRNG, s::Solution; mode::Symbol)

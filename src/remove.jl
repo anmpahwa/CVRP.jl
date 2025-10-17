@@ -1,24 +1,24 @@
 """
-    remove!([rng::AbstractRNG], k::Int, s::Solution, method::Symbol)
+    remove!([rng::AbstractRNG], k::Int, s::Solution, method::Function)
 
 Returns solution removing `k` nodes from solution s using the given `method`.
 
 Available methods include,
-- Random Node Removal       : `:randomnode!`
-- Random Arc Removal        : `:randomarc!`
-- Random Vehicle Removal    : `:randomvehicle!`
-- Related Node Removal      : `:relatednode!`
-- Related Arc Removal       : `:relatedarc!`
-- Related Vehicle Removal   : `:relatedvehicle!`
-- Worst Node Removal        : `:worstnode!`
-- Worst Arc Removal         : `:worstarc!`
-- Worst Vehicle Removal     : `:worstvehicle!`
+- Random Node Removal       : `randomnode!`
+- Random Arc Removal        : `randomarc!`
+- Random Vehicle Removal    : `randomvehicle!`
+- Related Node Removal      : `relatednode!`
+- Related Arc Removal       : `relatedarc!`
+- Related Vehicle Removal   : `relatedvehicle!`
+- Worst Node Removal        : `worstnode!`
+- Worst Arc Removal         : `worstarc!`
+- Worst Vehicle Removal     : `worstvehicle!`
 
 Optionally specify a random number generator `rng` as the first argument
 (defaults to `Random.GLOBAL_RNG`).
 """
-remove!(rng::AbstractRNG, k::Int, s::Solution, method::Symbol)::Solution = isdefined(CVRP, method) ? getfield(CVRP, method)(rng, k, s) : getfield(Main, method)(rng, k, s)
-remove!(k::Int, s::Solution, method::Symbol) = remove!(Random.GLOBAL_RNG, k, s, method)
+remove!(rng::AbstractRNG, k::Int, s::Solution, method::Function)::Solution = method(rng, k, s)
+remove!(k::Int, s::Solution, method::Function) = remove!(Random.GLOBAL_RNG, k, s, method)
 
 """
     randomnode!(rng::AbstractRNG, k::Int, s::Solution)
