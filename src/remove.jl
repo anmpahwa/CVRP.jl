@@ -206,7 +206,7 @@ function relatedarc!(rng::AbstractRNG, k::Int, s::Solution)
     C = CartesianIndices(A)
     I = eachindex(A)
     # randomize a pivot arc
-    p = A[rand(rng, C, Weights([isequal(N[a.t].h, N[a.h].i) for a ∈ A]))]
+    p = A[rand(rng, C, Weights([isequal(N[a.t].h, N[a.h].i) ? 1 : 0 for a ∈ A]))]
     # set arc weights: relatedness
     W = zeros(Float64, I)
     for i ∈ I
