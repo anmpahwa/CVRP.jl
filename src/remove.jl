@@ -149,12 +149,11 @@ function randomarc!(rng::AbstractRNG, k::Int, s::Solution)
     A = G.A
     V = G.V
     # arc indices
-    C = CartesianIndices(A)
     I = eachindex(A)
     # set arc weights: uniform
     W = zeros(Int, I)
     for i ∈ I
-        a = A[C[i]]
+        a = A[i]
         t = N[a.t]
         h = N[a.h] 
         W[i] = isequal(t.h, h.i) ? 1 : 0
@@ -164,7 +163,7 @@ function randomarc!(rng::AbstractRNG, k::Int, s::Solution)
     while j < k
         # sample an arc
         i = sample(rng, I, Weights(W))
-        a = A[C[i]]
+        a = A[i]
         # remove tail node
         n = N[a.t]
         if iscustomer(n) && isclose(n)
@@ -203,14 +202,13 @@ function relatedarc!(rng::AbstractRNG, k::Int, s::Solution)
     A = G.A
     V = G.V
     # arc indices
-    C = CartesianIndices(A)
     I = eachindex(A)
     # randomize a pivot arc
-    p = A[rand(rng, C, Weights([isequal(N[a.t].h, N[a.h].i) ? 1 : 0 for a ∈ A]))]
+    p = A[sample(rng, I, Weights([isequal(N[A[i].t].h, N[A[i].h].i) ? 1 : 0 for i ∈ I]))]
     # set arc weights: relatedness
     W = zeros(Float64, I)
     for i ∈ I
-        a = A[C[i]]
+        a = A[i]
         t = N[a.t]
         h = N[a.h]
         x = abs((N[p.t].x + N[p.h].x) - (N[a.t].x + N[a.h].x))
@@ -224,7 +222,7 @@ function relatedarc!(rng::AbstractRNG, k::Int, s::Solution)
     while j < k
         # sample an arc
         i = sample(rng, I, Weights(W))
-        a = A[C[i]]
+        a = A[i]
         # remove tail node
         n = N[a.t]
         if iscustomer(n) && isclose(n)
@@ -268,7 +266,7 @@ function worstarc!(rng::AbstractRNG, k::Int, s::Solution)
     # set arc weights: cost
     W = zeros(Float64, I)
     for i ∈ I
-        a = A[C[i]]
+        a = A[i]
         t = N[a.t]
         h = N[a.h] 
         W[i] = isequal(t.h, h.i) ? a.c : 0.
@@ -278,7 +276,7 @@ function worstarc!(rng::AbstractRNG, k::Int, s::Solution)
     while j < k
         # sample an arc
         i = sample(rng, I, Weights(W))
-        a = A[C[i]]
+        a = A[i]
         # remove tail node
         n = N[a.t]
         if iscustomer(n) && isclose(n)
