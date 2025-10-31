@@ -6,8 +6,8 @@ using DataFrames
 
 let
     # Define instances
-    instances = ["X-n101-k25"]
-    # Define random number generators
+    instances = ["X-n101-k25", "X-n200-k36", "X-n308-k13"]
+    # Define random number generator seeds
     seeds = [1010, 1106, 1509, 1604, 1905, 2104, 2412, 2703, 2710, 2807]
     # Dataframes to store solution quality and run time
     dfᶠ = DataFrame([instances, zeros(length(instances)), [zeros(length(instances)) for _ ∈ seeds]...], ["instance", "initial", ["$seed" for seed ∈ seeds]...])
