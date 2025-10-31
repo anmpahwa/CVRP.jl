@@ -144,7 +144,7 @@ function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances
             m += N[k+1].q / V[begin].q
             insertnode!(n, d, d, v, s)
         end
-        while sum(isopt.(V)) > ceil(Int, m)
+        while true
             z = f(s)
             # iterate through each vehicle pair
             for i ∈ K
@@ -167,7 +167,7 @@ function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances
                     # compute savings
                     z⁻ = f(s)
                     Δ  = z - z⁻
-                    C[i,j] = Δ
+                    C[i,j] = Δ > 0 ? Δ : C[i,j]
                     # unmerge vehicle routes
                     for _ ∈ 1:k
                         d = N[1]
@@ -181,6 +181,7 @@ function initialize(instance::String; dir=joinpath(dirname(@__DIR__), "instances
             end
             # merge vehicle routes with highest savings
             i,j = Tuple(argmax(C))
+            if isinf(C[i,j]) break end
             vᵢ = V[i]
             vⱼ = V[j]
             k  = vⱼ.n
