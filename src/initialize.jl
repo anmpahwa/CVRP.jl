@@ -15,9 +15,22 @@ function build(instance::String; dir=joinpath(dirname(@__DIR__), "instances"))
     n = parse(Int, df[k₁,2])
     N = Vector{Node}(undef, n)
     for i ∈ 1:n
-        x = parse(Int, split(df[k₃+i,1])[2])
-        y = parse(Int, split(df[k₃+i,1])[3])
-        q = parse(Int, split(df[k₄+i,1])[2])
+        v = ""
+        try v = string(split(df[k₃+i,1])[2])
+        catch e
+            v = string(df[k₃+i,2])
+        end
+        x = parse(Int, v)
+        try v = string(split(df[k₃+i,1])[3])
+        catch e
+            v = string(df[k₃+i,3])
+        end
+        y = parse(Int, v)
+        try v = string(split(df[k₄+i,1])[2])
+        catch e
+            v = string(df[k₄+i,2])
+        end
+        q = parse(Int, v)
         N[i] = Node(i, x, y, q)
     end
     # create arcs
