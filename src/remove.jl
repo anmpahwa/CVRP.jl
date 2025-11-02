@@ -403,7 +403,7 @@ function worstvehicle!(rng::AbstractRNG, k::Int, s::Solution)
     W = zeros(Float64, I)
     for i ∈ I
         v = V[i]
-        W[i] = 1 - v.l / v.q
+        W[i] = 1 - v.l / v.q + 1e-3
     end
     # loop: until at least k nodes are removed
     j = 0
