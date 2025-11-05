@@ -124,7 +124,7 @@ function ALNS(rng::AbstractRNG, χ::ALNSparameters, sₒ::Solution; mute=false)
         Z[1 + u * (n + 1)] = z
     end
     # Step 3: Display the convergence plot and return the best solution
-    if !mute display(pltcnv(Z)) end
+    if !mute display(pltcnv(X,Z)) end
     return s⃰
 end
 ALNS(χ::ALNSparameters, s::Solution; mute=false) = ALNS(Random.GLOBAL_RNG, χ, s; mute=mute)

@@ -66,30 +66,32 @@ function visualize(s::Solution; backend=gr)
 end
 
 """
-    pltcnv(Z::Vector{Float64}; backend=gr)
+    pltcnv(X::Vector{UInt64}, Z::Vector{Float64}; backend=gr)
 
 Plots convergence using objective function evaluations vector `Z`. 
 Uses given `backend` to plot (defaults to `gr`).
 """
-function pltcnv(Z::Vector{Float64}; backend=gr)
+function pltcnv(X::Vector{UInt64},Z::Vector{Float64}; backend=gr)
     backend()
     fig = plot(legend=:none)
-    # search attributes
+    xₒ = X[1]
     zₒ = Z[1]
     z⃰  = minimum(Z)
-    # convergence plot
-    K = Int[]
-    X = eachindex(Z)
-    Y = zeros(eachindex(Z))
-    for (k, z) ∈ pairs(Z)
-        if z / zₒ < 0.99
+    I  = eachindex(Z)
+    Y₁ = []             # improvements
+    Y₂ = zeros(I)       # convergence
+    for i ∈ I
+        x = X[i]
+        z = Z[i]
+        if !isequal(x, xₒ) && isless(z, zₒ)
+            xₒ = x
             zₒ = z
-            push!(K, k)
+            push!(Y₁, i)
         end
-        Y[k] = (z/z⃰ - 1) * 100
+        Y₂[i] = (z/z⃰ - 1) * 100
     end
-    vline!(K, color=:black, linewidth=0.25)
-    plot!(X, Y, xlabel="iterations", ylabel="deviation from the best (%)", color=:steelblue)
+    vline!(Y₁, color=:black, linewidth=0.25)
+    plot!(I, Y₂, xlabel="iterations", ylabel="deviation from the best (%)", color=:steelblue)
     # figure
     return fig
 end
